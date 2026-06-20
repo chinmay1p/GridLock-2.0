@@ -1,0 +1,10 @@
+__pycache__
+.venv
+.agents
+.env
+astram.csv
+cache
+data
+outputs
+tests
+scratch
