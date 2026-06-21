@@ -1,8 +1,18 @@
 from __future__ import annotations
 
-import torch
-import torch.nn as nn
-from torch_geometric.nn import GCNConv
+try:
+    import torch
+    import torch.nn as nn
+    from torch_geometric.nn import GCNConv
+    HAS_PYTORCH = True
+except ImportError:
+    HAS_PYTORCH = False
+    class nn:
+        class Module:
+            def __init__(self, *args, **kwargs):
+                pass
+    GCNConv = None
+    torch = None
 
 class STGNN(nn.Module):
     """
