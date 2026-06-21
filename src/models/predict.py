@@ -7,7 +7,13 @@ import joblib
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from scipy.sparse import hstack, csr_matrix
+try:
+    from scipy.sparse import hstack, csr_matrix
+    HAS_SCIPY = True
+except ImportError:
+    csr_matrix = None
+    hstack = None
+    HAS_SCIPY = False
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
@@ -26,6 +32,10 @@ def load_prediction_assets():
     Helper to lazy-load models, encoders, and feature structures.
     """
     if _MODELS_CACHE:
+        return _MODELS_CACHE
+
+    if not HAS_SCIPY:
+        _MODELS_CACHE["is_fallback"] = True
         return _MODELS_CACHE
 
     logging.info("Loading predictive models and vectorizers from %s...", MODELS_DIR)

@@ -7,7 +7,13 @@ import joblib
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from scipy.sparse import hstack, csr_matrix
+try:
+    from scipy.sparse import hstack, csr_matrix
+    HAS_SCIPY = True
+except ImportError:
+    csr_matrix = None
+    hstack = None
+    HAS_SCIPY = False
 try:
     import shap
 except ImportError:
@@ -46,7 +52,7 @@ def explain_event_impact(event: dict) -> str:
     location = str(event.get("location", "")).lower()
     event_cause = str(event.get("event_cause", "vehicle_breakdown"))
     
-    if shap is None or assets is None or assets.get("is_fallback", False):
+    if shap is None or not HAS_SCIPY or assets is None or assets.get("is_fallback", False):
         # High-fidelity rule-based backup explainer when SHAP/models are missing on Vercel
         class_label = "MEDIUM"
         if "accident" in event_cause or "water" in location or "flood" in location:
