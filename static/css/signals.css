@@ -1,0 +1,258 @@
+/* Traffic Twin Bengaluru — Live Traffic Signal Simulation UI Styles */
+
+/* Map Signal Markers */
+.signal-map-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.signal-map-icon.state-normal {
+    border: 2.5px solid #41644A;
+    box-shadow: 0 0 8px rgba(65, 100, 74, 0.4);
+}
+
+.signal-map-icon.state-heavy {
+    border: 2.5px solid #E86A33;
+    box-shadow: 0 0 15px rgba(232, 106, 51, 0.7);
+    animation: signalGlow 2s infinite ease-in-out;
+}
+
+.signal-map-icon.state-critical {
+    border: 2.5px solid #E21C1C;
+    box-shadow: 0 0 20px rgba(226, 28, 28, 0.9);
+    animation: signalPulse 1.5s infinite;
+}
+
+/* Animations for Signal Markers */
+@keyframes signalGlow {
+    0%, 100% { box-shadow: 0 0 8px rgba(232, 106, 51, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(232, 106, 51, 0.9); }
+}
+
+@keyframes signalPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(226, 28, 28, 0.7);
+        transform: scale(1);
+    }
+    70% {
+        box-shadow: 0 0 0 12px rgba(226, 28, 28, 0);
+        transform: scale(1.08);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(226, 28, 28, 0);
+        transform: scale(1);
+    }
+}
+
+/* Signal Toggle controls in sidebar/header */
+.signals-control-panel {
+    background: #FAF8F5;
+    border: 1px solid #EAE5DF;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.signals-toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.toggle-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #2D2A26;
+}
+
+/* Switch Toggle widget styling */
+.switch-widget {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch-widget input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #DCD6CD;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+input:checked + .switch-slider {
+    background-color: #E86A33;
+}
+
+input:checked + .switch-slider:before {
+    transform: translateX(20px);
+}
+
+/* Intersection Visualizer View */
+.intersection-box {
+    margin-top: 15px;
+    background: #FAF8F5;
+    border: 1px solid #EAE5DF;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.intersection-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    grid-template-rows: 1fr 1.2fr 1fr;
+    width: 100%;
+    height: 200px;
+    position: relative;
+}
+
+.intersection-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Directions Positioning */
+.node-north { grid-column: 2; grid-row: 1; }
+.node-west { grid-column: 1; grid-row: 2; }
+.node-center { 
+    grid-column: 2; 
+    grid-row: 2; 
+    border: 2px dashed #E1DDD8; 
+    border-radius: 50%;
+    background: #FFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.node-east { grid-column: 3; grid-row: 2; }
+.node-south { grid-column: 2; grid-row: 3; }
+
+/* Traffic Light indicator */
+.traffic-light-bulb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #EAE5DF;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    margin-bottom: 4px;
+    transition: all 0.25s ease;
+}
+
+.traffic-light-bulb.red {
+    background: #E21C1C;
+    box-shadow: 0 0 10px rgba(226, 28, 28, 0.8);
+}
+
+.traffic-light-bulb.yellow {
+    background: #FFC93C;
+    box-shadow: 0 0 10px rgba(255, 201, 60, 0.8);
+}
+
+.traffic-light-bulb.green {
+    background: #41644A;
+    box-shadow: 0 0 10px rgba(65, 100, 74, 0.8);
+}
+
+/* Direction detail tags */
+.dir-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #6D6864;
+    text-transform: uppercase;
+}
+
+.queue-badge {
+    background: #EAE5DF;
+    color: #2D2A26;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-top: 2px;
+}
+
+.queue-badge.high-load {
+    background: #FFF0E5;
+    color: #E86A33;
+}
+
+.queue-badge.critical-load {
+    background: #FFEBEA;
+    color: #E21C1C;
+}
+
+.countdown-timer {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #8C847E;
+    margin-top: 2px;
+}
+
+/* Network coordination wave */
+.animated-coordination-line {
+    animation: dashOffset 1.5s linear infinite;
+}
+
+@keyframes dashOffset {
+    to {
+        stroke-dashoffset: -25;
+    }
+}
+
+/* Spinner animation for optimize button loading state */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Override Leaflet default icon wrapper so our custom div icons render cleanly */
+.leaflet-signal-marker {
+    background: none !important;
+    border: none !important;
+}
+
+/* Queue badge scale transition */
+.queue-badge {
+    transition: transform 0.15s ease, background 0.25s ease, color 0.25s ease;
+}
+

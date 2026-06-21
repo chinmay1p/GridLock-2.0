@@ -1,0 +1,413 @@
+/* Traffic Twin Bengaluru — AI Assistant Panel Styling */
+
+/* Floating Right Sidebar for AI Assistant */
+.assistant-sidebar-panel {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 380px;
+    bottom: 20px;
+    background: rgba(250, 248, 245, 0.95);
+    border: 1px solid #EAE5DF;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(74, 70, 66, 0.12);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+.assistant-sidebar-panel.active {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Header styling */
+.assistant-header {
+    background: #E86A33;
+    color: #FFFFFF;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.assistant-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.3px;
+}
+
+.btn-close-assistant {
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+}
+
+.btn-close-assistant:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Content Area */
+.assistant-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Premium Assistant Cards */
+.assistant-card {
+    background: #FFFFFF;
+    border: 1px solid #EAE5DF;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(74, 70, 66, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.assistant-card:hover {
+    box-shadow: 0 4px 16px rgba(74, 70, 66, 0.08);
+}
+
+.card-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #8C847E;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Situation Summary Card */
+.situation-text {
+    font-size: 0.9rem;
+    color: #2D2A26;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+/* Severity Indicator styling */
+.severity-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.severity-badge {
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.2px;
+}
+
+.severity-badge.low { background: #E2F0D9; color: #385723; }
+.severity-badge.medium { background: #FFF2CC; color: #7F6000; }
+.severity-badge.high { background: #FCE4D6; color: #C65911; }
+.severity-badge.critical { background: #FFE6E6; color: #C00000; animation: flashBadge 1.5s infinite alternate; }
+
+@keyframes flashBadge {
+    from { opacity: 1; }
+    to { opacity: 0.7; }
+}
+
+.closure-prob-box {
+    text-align: right;
+}
+
+.prob-val {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #E86A33;
+}
+
+.prob-lbl {
+    font-size: 0.65rem;
+    color: #8C847E;
+    font-weight: 700;
+}
+
+/* Severity Factors List */
+.factors-list {
+    margin: 8px 0 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.factor-item {
+    font-size: 0.8rem;
+    color: #4A4642;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-weight: 600;
+}
+
+.factor-item i {
+    font-size: 0.95rem;
+    color: #E86A33;
+}
+
+/* Recommended Response & Strategy Actions */
+.strategy-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.strategy-item {
+    border-left: 3px solid #E86A33;
+    padding-left: 10px;
+    margin-bottom: 8px;
+}
+
+.strategy-item h4 {
+    margin: 0 0 4px 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #2D2A26;
+}
+
+.strategy-item p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #6D6864;
+    line-height: 1.4;
+}
+
+/* Interactive Action Buttons for Strategies */
+.strategy-actions-footer {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    border-top: 1px solid #EAE5DF;
+    padding-top: 12px;
+}
+
+.btn-strategy {
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn-strategy:active {
+    transform: scale(0.97);
+}
+
+.btn-strategy-simulate {
+    background: #EAE5DF;
+    color: #4A4642;
+}
+
+.btn-strategy-simulate:hover {
+    background: #DCD6CD;
+}
+
+.btn-strategy-apply {
+    background: #E86A33;
+    color: #FFFFFF;
+}
+
+.btn-strategy-apply:hover {
+    background: #D65A27;
+}
+
+/* Expected Improvement Panel (metrics compare grid) */
+.improvement-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.improvement-stat-box {
+    background: #FAF8F5;
+    border: 1px solid #EAE5DF;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #41644A;
+}
+
+.stat-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #8C847E;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* Plan Comparison Radio/Selector Grid */
+.plan-tabs {
+    display: flex;
+    border: 1px solid #EAE5DF;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.plan-tab {
+    flex: 1;
+    background: #FAF8F5;
+    border: none;
+    padding: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6D6864;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-right: 1px solid #EAE5DF;
+}
+
+.plan-tab:last-child {
+    border-right: none;
+}
+
+.plan-tab.active {
+    background: #FFFFFF;
+    color: #E86A33;
+    font-weight: 800;
+}
+
+/* Explanation Bullets */
+.explanations-box {
+    margin: 0;
+    padding: 0 0 0 16px;
+    font-size: 0.8rem;
+    color: #4A4642;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    line-height: 1.4;
+}
+
+/* Printable PDF & Export Row */
+.export-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.btn-export {
+    flex: 1;
+    background: #FFFFFF;
+    border: 1px solid #EAE5DF;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #4A4642;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.2s ease;
+}
+
+.btn-export:hover {
+    background: #FAF8F5;
+    color: #E86A33;
+    border-color: #DCD6CD;
+}
+
+/* Sidebar Toggle Trigger Button overlaying map */
+.btn-toggle-assistant-trigger {
+    position: fixed;
+    right: 20px;
+    top: 90px;
+    background: #FFFFFF;
+    border: 1.5px solid #E86A33;
+    color: #E86A33;
+    padding: 10px 14px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(74, 70, 66, 0.15);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle-assistant-trigger:hover {
+    background: #E86A33;
+    color: #FFFFFF;
+}
+
+/* Warning Alerts Overlay cards */
+.alert-card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.assistant-alert-card {
+    background: #FFF9E6;
+    border: 1px solid #FFE0B2;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    animation: slideInAlert 0.3s ease-out;
+}
+
+@keyframes slideInAlert {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.assistant-alert-card i {
+    color: #FFB300;
+    font-size: 1.1rem;
+    margin-top: 1px;
+}
+
+.assistant-alert-text {
+    font-size: 0.75rem;
+    color: #5C4300;
+    font-weight: 600;
+    line-height: 1.4;
+}

@@ -1,0 +1,257 @@
+/* Traffic Twin Bengaluru — Police Intervention Simulator Styling */
+
+/* Floating Vertical Toolbar on Left */
+.intervention-toolbar {
+    position: absolute;
+    top: 150px;
+    left: 20px;
+    z-index: 1010;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 30px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.12);
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.intervention-tool-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #4A4642;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.intervention-tool-btn:hover {
+    background: #FFF0E5;
+    color: #E86A33;
+    transform: scale(1.08);
+}
+
+.intervention-tool-btn.active {
+    background: #E86A33;
+    color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(232, 106, 51, 0.35);
+}
+
+.intervention-tool-btn .material-icons {
+    font-size: 22px;
+}
+
+/* Vertical Toolbar Tooltips */
+.intervention-tool-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 54px;
+    top: 50%;
+    transform: translateY(-50%) scale(0.9);
+    background: rgba(45, 42, 38, 0.95);
+    color: #F8F5F0;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.intervention-tool-btn:hover::after {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+}
+
+/* Tool Config Popover */
+.intervention-config-popover {
+    position: absolute;
+    top: 150px;
+    left: 80px;
+    z-index: 1010;
+    width: 280px;
+    background: #FFFFFF;
+    border: 1px solid #EAE5DF;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    padding: 16px;
+    animation: popoverFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.popover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #EAE5DF;
+    padding-bottom: 8px;
+}
+
+.popover-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #2D2A26;
+    margin: 0;
+}
+
+.btn-popover-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #8C847E;
+    display: flex;
+    align-items: center;
+}
+
+.btn-popover-close:hover {
+    color: #2D2A26;
+}
+
+/* Split Comparison Layout */
+.comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.comparison-card {
+    border-radius: 10px;
+    padding: 12px;
+    background: #FAF8F5;
+    border: 1px solid #EAE5DF;
+}
+
+.comparison-card.before {
+    border-left: 4px solid #8C847E;
+}
+
+.comparison-card.after {
+    border-left: 4px solid #00B4D8;
+    background: #FFFBF9;
+}
+
+.comparison-val {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #2D2A26;
+    margin: 4px 0;
+}
+
+.comparison-label {
+    font-size: 0.7rem;
+    color: #6D6864;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Strategy History Logs */
+.strategy-history-panel {
+    background: #FAF8F5;
+    border: 1px solid #EAE5DF;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 15px;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.history-item {
+    background: #FFFFFF;
+    border: 1px solid #E1DDD8;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.history-item:hover {
+    border-color: #E86A33;
+    background: #FFFBF9;
+}
+
+.history-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2D2A26;
+}
+
+.history-score {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #41644A;
+}
+
+/* Pulsing AI Plan Button */
+.btn-ai-recommend {
+    background: linear-gradient(135deg, #E86A33, #FF8E53);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(232, 106, 51, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    margin-top: 10px;
+}
+
+.btn-ai-recommend:hover {
+    box-shadow: 0 6px 20px rgba(232, 106, 51, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-ai-recommend.pulsing {
+    animation: buttonPulse 2s infinite;
+}
+
+/* Animations */
+@keyframes popoverFade {
+    from {
+        opacity: 0;
+        transform: translateX(-15px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes buttonPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(232, 106, 51, 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(232, 106, 51, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(232, 106, 51, 0);
+    }
+}

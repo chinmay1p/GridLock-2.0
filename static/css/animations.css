@@ -1,0 +1,103 @@
+/* ==========================================================================
+   TRAFFIC TWIN BENGALURU — ANIMATIONS
+   ========================================================================== */
+
+/* --- Fade Up Animation --- */
+.fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.delay-1 {
+    animation-delay: 0.15s;
+}
+
+.delay-2 {
+    animation-delay: 0.3s;
+}
+
+.delay-3 {
+    animation-delay: 0.45s;
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Pulse Effects for Nodes --- */
+.pulse-green {
+    box-shadow: 0 0 0 0 rgba(65, 100, 74, 0.4);
+    animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(65, 100, 74, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(65, 100, 74, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(65, 100, 74, 0);
+    }
+}
+
+.pulse-orange {
+    box-shadow: 0 0 0 0 rgba(232, 106, 51, 0.4);
+    animation: pulseOrange 2s infinite;
+}
+
+@keyframes pulseOrange {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(232, 106, 51, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(232, 106, 51, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(232, 106, 51, 0);
+    }
+}
+
+/* --- Hover Floating Animation --- */
+.float-hover {
+    transition: var(--transition);
+}
+
+.float-hover:hover {
+    transform: translateY(-5px);
+}
+
+/* --- Reveal on Scroll Utility --- */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- Flowing Particle Background Line Animation --- */
+.flow-line {
+    stroke-dasharray: 8, 8;
+    animation: flow 30s linear infinite;
+}
+
+@keyframes flow {
+    to {
+        stroke-dashoffset: -1000;
+    }
+}
