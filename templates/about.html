@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}About — Traffic Twin Bengaluru{% endblock %}
+
+{% block content %}
+<!-- About Hero -->
+<section class="about-hero">
+    <div class="container">
+        <h1 class="fade-up">About the Initiative</h1>
+        <p class="fade-up delay-1">Addressing the complexities of urban traffic networks through proactive digital twin engineering.</p>
+    </div>
+</section>
+
+<!-- Main Narrative Section -->
+<section class="about-sections">
+    <div class="container">
+        <div class="about-grid">
+            <!-- Left: Problem & Challenge -->
+            <div class="about-text-panel reveal">
+                <h2>The Problem</h2>
+                <p>Bengaluru is one of the most rapidly expanding urban centers in the world. With growth comes a dense network of commuters, commercial vehicles, and infrastructure nodes. Disruptions to this network happen daily due to variety of triggers:</p>
+                
+                <div class="about-cards-panel" style="margin-top: 20px;">
+                    <div class="about-card">
+                        <h3><i data-lucide="alert-triangle"></i> Incidents & Construction</h3>
+                        <p>Vehicle breakdowns, minor accidents, metro rail expansion, and waterlogging immediately paralyze local streets.</p>
+                    </div>
+                    <div class="about-card">
+                        <h3><i data-lucide="users"></i> Major Gatherings</h3>
+                        <p>VIP movements, political rallies, and massive sporting events create immediate bottlenecks on major corridors.</p>
+                    </div>
+                </div>
+                
+                <h2 style="margin-top: 40px;">The Challenge</h2>
+                <p>Traditional municipal command centers operate reactively. When an accident or waterlogging occurs, traffic signals are adjusted, or patrols are dispatched <strong>after</strong> gridlocks have already formed. By then, congestion has already rippled across neighboring sectors, causing hours of delay.</p>
+            </div>
+            
+            <!-- Right: The Solution -->
+            <div class="about-text-panel reveal delay-1">
+                <h2>The Solution</h2>
+                <p>Traffic Twin Bengaluru shifts traffic management from reactive recovery to proactive prevention. By establishing a virtual representation of the road network, our platform runs real-time simulations to predict the impact of disruptions before they occur.</p>
+                <p>When an incident report is received, operators run a simulation to see exactly where traffic will spill over in the next 15, 30, and 60 minutes. This allows the system to recommend optimal diversion paths and update surrounding signal timings before the bottleneck manifests.</p>
+                
+                <div class="about-card" style="margin-top: 30px; border-left: 4px solid var(--primary);">
+                    <h3><i data-lucide="sparkles"></i> High-Fidelity Digital Forecasting</h3>
+                    <p>Our platform evaluates multi-strategy detours, measures global city impact, and provides actionable, police-ready coordination recommendations automatically.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technology Stack Section -->
+<section class="tech-stack-section">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>Underlying Technology Stack</h2>
+            <p>Combining modern deep learning models with classic graph routing algorithms to build a reliable city-state engine.</p>
+        </div>
+        
+        <div class="tech-grid">
+            <!-- Tech 1 -->
+            <div class="tech-card reveal">
+                <div class="tech-card-icon">
+                    <i data-lucide="network"></i>
+                </div>
+                <h3>Spatio-Temporal GNNs</h3>
+                <p>Utilizes PyTorch-based Graph Neural Networks to forecast congestion propagation dynamically across the topological network structure over time.</p>
+            </div>
+            
+            <!-- Tech 2 -->
+            <div class="tech-card reveal delay-1">
+                <div class="tech-card-icon">
+                    <i data-lucide="cpu"></i>
+                </div>
+                <h3>Machine Learning</h3>
+                <p>Uses LightGBM and XGBoost predictors trained on past incident databases to evaluate duration, closure risk, and overall severity levels.</p>
+            </div>
+            
+            <!-- Tech 3 -->
+            <div class="tech-card reveal delay-2">
+                <div class="tech-card-icon">
+                    <i data-lucide="globe"></i>
+                </div>
+                <h3>Digital Twin Graph</h3>
+                <p>Models Bengaluru's primary, secondary, and tertiary arterials via NetworkX MultiDiGraphs directly initialized from OpenStreetMap data.</p>
+            </div>
+            
+            <!-- Tech 4 -->
+            <div class="tech-card reveal delay-3">
+                <div class="tech-card-icon">
+                    <i data-lucide="zap"></i>
+                </div>
+                <h3>Adaptive Optimization</h3>
+                <p>Computes real-time junction pressure and coordination offsets to implement Surtrac-style adaptive green wave signal timing.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

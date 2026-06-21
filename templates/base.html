@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Traffic Twin Bengaluru{% endblock %}</title>
+    <meta name="description" content="AI-powered digital twin for predicting, simulating, and optimizing urban mobility disruptions in Bengaluru.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Floating Navigation Bar -->
+    <nav class="navbar" id="main-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-logo">
+                <span class="logo-circle"></span>
+                <span class="logo-text">Traffic Twin <span class="accent">Bengaluru</span></span>
+            </a>
+            
+            <div class="nav-menu" id="nav-menu">
+                <a href="{{ url_for('index') }}" class="nav-item {% if request.path == '/' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-item {% if request.path == '/about' %}active{% endif %}">About</a>
+                <a href="{{ url_for('how_it_works') }}" class="nav-item {% if request.path == '/how-it-works' %}active{% endif %}">How It Works</a>
+                <a href="{{ url_for('events') }}" class="nav-item {% if request.path == '/events' %}active{% endif %}">Events</a>
+                <a href="{{ url_for('command_center') }}" class="nav-item {% if request.path == '/command-center' %}active{% endif %}">Command Center</a>
+            </div>
+            
+            <div class="nav-actions">
+                <a href="{{ url_for('command_center') }}" class="btn btn-primary nav-btn">
+                    <span>Launch Simulator</span>
+                    <i data-lucide="arrow-up-right"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main class="page-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h3>Traffic Twin Bengaluru</h3>
+                <p>Developing advanced predictive technology for urban mobility management and congestion relief.</p>
+            </div>
+            <div class="footer-links">
+                <div class="link-group">
+                    <h4>Platform</h4>
+                    <a href="{{ url_for('index') }}">Home</a>
+                    <a href="{{ url_for('about') }}">About</a>
+                    <a href="{{ url_for('how_it_works') }}">How It Works</a>
+                    <a href="{{ url_for('events') }}">Events</a>
+                </div>
+                <div class="link-group">
+                    <h4>Operations</h4>
+                    <a href="{{ url_for('command_center') }}">Command Center</a>
+                    <a href="https://github.com" target="_blank" rel="noopener">Source Code</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Traffic Twin Bengaluru. Built for Bangalore Traffic Digital Twin Initiative.</p>
+        </div>
+    </footer>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Initialize Lucide icons on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

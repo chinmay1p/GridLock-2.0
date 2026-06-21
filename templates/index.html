@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Traffic Twin Bengaluru — AI-Powered Urban Mobility Simulation{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-content">
+        <h1 class="fade-up">Traffic Twin <span>Bengaluru</span></h1>
+        <p class="fade-up delay-1">AI-powered digital twin for predicting, simulating, and optimizing urban mobility disruptions.</p>
+        <div class="hero-actions fade-up delay-2">
+            <a href="{{ url_for('command_center') }}" class="btn btn-primary btn-lg">
+                <span>Launch Command Center</span>
+                <i data-lucide="arrow-up-right"></i>
+            </a>
+            <a href="#features-section" class="btn btn-outline btn-lg">Explore Technology</a>
+        </div>
+    </div>
+</section>
+
+<!-- Feature Section -->
+<section id="features-section" class="features">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>Platform Capabilities</h2>
+            <p>Integrated toolsets designed to predict, coordinate, and resolve complex traffic challenges across Bengaluru.</p>
+        </div>
+        
+        <div class="features-grid">
+            <!-- Card 1: Predict -->
+            <div class="feature-card reveal delay-1">
+                <div class="feature-icon">
+                    <i data-lucide="line-chart"></i>
+                </div>
+                <h3>Predict</h3>
+                <p>Forecast congestion before it spreads using state-of-the-art AI traffic intelligence models trained on real-world incident historical records.</p>
+            </div>
+            
+            <!-- Card 2: Simulate -->
+            <div class="feature-card reveal delay-2">
+                <div class="feature-icon">
+                    <i data-lucide="git-fork"></i>
+                </div>
+                <h3>Simulate</h3>
+                <p>Test accidents, public events, barricades, and full or partial closures in a safe sandbox before applying physical decisions on the streets.</p>
+            </div>
+            
+            <!-- Card 3: Optimize -->
+            <div class="feature-card reveal delay-3">
+                <div class="feature-icon">
+                    <i data-lucide="sliders"></i>
+                </div>
+                <h3>Optimize</h3>
+                <p>Coordinate traffic signal timings and diversion guidelines dynamically across major corridors, reducing wait time and throughput bottlenecks.</p>
+            </div>
+            
+            <!-- Card 4: Respond -->
+            <div class="feature-card reveal delay-1">
+                <div class="feature-icon">
+                    <i data-lucide="file-check-2"></i>
+                </div>
+                <h3>Respond</h3>
+                <p>Generate on-scene emergency patrol guidance and command brief summaries detailing clear operational options and signal overrides.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="stats">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item reveal">
+                <h2 class="counter" data-target="8173" data-suffix="+">0</h2>
+                <p>Police traffic events analyzed</p>
+            </div>
+            <div class="stat-item reveal delay-1">
+                <h2 class="counter" data-target="80000" data-suffix="+">0</h2>
+                <p>Road segments modeled</p>
+            </div>
+            <div class="stat-item reveal delay-2">
+                <h2 class="counter" data-target="60" data-suffix=" min">0</h2>
+                <p>Future simulation window</p>
+            </div>
+            <div class="stat-item reveal delay-3">
+                <h2>AI</h2>
+                <p>Adaptive signal control</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- System Architecture Section -->
+<section class="architecture">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>Data Processing & Intelligence Flow</h2>
+            <p>From initial municipal incident alerts to deployment plans, understand the system pipeline step-by-step.</p>
+        </div>
+        
+        <div class="arch-flow reveal">
+            <!-- Node 1 -->
+            <div class="arch-node">
+                <div class="arch-node-icon">
+                    <i data-lucide="bell"></i>
+                </div>
+                <h4>ASTRAM Events</h4>
+                <p>Real-time police and public incident notifications.</p>
+            </div>
+            
+            <div class="arch-connector"></div>
+            
+            <!-- Node 2 -->
+            <div class="arch-node">
+                <div class="arch-node-icon">
+                    <i data-lucide="database"></i>
+                </div>
+                <h4>Traffic Data</h4>
+                <p>Continuous speed and flow volume updates.</p>
+            </div>
+            
+            <div class="arch-connector"></div>
+            
+            <!-- Node 3 -->
+            <div class="arch-node">
+                <div class="arch-node-icon">
+                    <i data-lucide="network"></i>
+                </div>
+                <h4>Digital Twin</h4>
+                <p>In-memory road network graph representation.</p>
+            </div>
+            
+            <div class="arch-connector"></div>
+            
+            <!-- Node 4 -->
+            <div class="arch-node">
+                <div class="arch-node-icon">
+                    <i data-lucide="binary"></i>
+                </div>
+                <h4>AI Prediction</h4>
+                <p>ML classification and ST-GNN models.</p>
+            </div>
+            
+            <div class="arch-connector"></div>
+            
+            <!-- Node 5 -->
+            <div class="arch-node">
+                <div class="arch-node-icon">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <h4>Decision Support</h4>
+                <p>Optimized signal plans and patrol actions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

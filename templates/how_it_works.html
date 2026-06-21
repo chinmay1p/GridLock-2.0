@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}How It Works — Traffic Twin Bengaluru{% endblock %}
+
+{% block content %}
+<!-- How It Works Hero -->
+<section class="how-hero">
+    <div class="container">
+        <h1 class="fade-up">Platform Operations</h1>
+        <p class="fade-up delay-1">Understanding the simulation loop and decision-making pipeline step-by-step.</p>
+    </div>
+</section>
+
+<!-- Timeline Section -->
+<section class="timeline-section">
+    <div class="container">
+        <div class="timeline-wrapper">
+            <div class="timeline-line"></div>
+            
+            <!-- Step 1 -->
+            <div class="timeline-step reveal">
+                <div class="timeline-badge">1</div>
+                <div class="timeline-content">
+                    <h3><i data-lucide="eye" style="vertical-align: middle; margin-right: 8px; color: var(--secondary);"></i> View Live City State</h3>
+                    <p>Operators monitors current Bengaluru traffic conditions on the high-fidelity interactive map, observing baseline speeds, active bottlenecks, and congestion profiles on major arterial corridors.</p>
+                </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="timeline-step reveal delay-1">
+                <div class="timeline-badge">2</div>
+                <div class="timeline-content">
+                    <h3><i data-lucide="plus-circle" style="vertical-align: middle; margin-right: 8px; color: var(--secondary);"></i> Create Scenario</h3>
+                    <p>Input incident parameters when a traffic disruption occurs. Specify details including location, time of day, cause type (e.g., breakdown, accident, flooding), and manual road actions (such as full or partial closures and barricades).</p>
+                </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="timeline-step reveal delay-2">
+                <div class="timeline-badge">3</div>
+                <div class="timeline-content">
+                    <h3><i data-lucide="play" style="vertical-align: middle; margin-right: 8px; color: var(--secondary);"></i> Run Simulation</h3>
+                    <p>Trigger the Unified Simulation Engine. The system processes the event features through trained models to estimate duration, impact severity, and runs the PyTorch ST-GNN to map congestion propagation at 15, 30, and 60-minute intervals.</p>
+                </div>
+            </div>
+            
+            <!-- Step 4 -->
+            <div class="timeline-step reveal delay-3">
+                <div class="timeline-badge">4</div>
+                <div class="timeline-content">
+                    <h3><i data-lucide="shuffle" style="vertical-align: middle; margin-right: 8px; color: var(--secondary);"></i> Test Actions</h3>
+                    <p>Evaluate response strategies. Compare alternative diversion paths and run queue estimates to determine which options minimize delay increases, local bottlenecks, and affected area radius.</p>
+                </div>
+            </div>
+            
+            <!-- Step 5 -->
+            <div class="timeline-step reveal delay-1">
+                <div class="timeline-badge">5</div>
+                <div class="timeline-content">
+                    <h3><i data-lucide="check-circle" style="vertical-align: middle; margin-right: 8px; color: var(--secondary);"></i> Deploy Plan</h3>
+                    <p>Review recommendations and generated command summaries. Dispatch traffic patrols, set physical diversions, and trigger adaptive signal timing overrides at nearby intersections using the optimized plans.</p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+{% endblock %}

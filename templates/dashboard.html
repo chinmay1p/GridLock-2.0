@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bangalore Traffic Digital Twin</title>
+    <meta name="description" content="Real-time Bangalore traffic simulation dashboard with ML predictions and GNN propagation analysis.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a12;
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* ── Sidebar ── */
+        #sidebar {
+            width: 360px;
+            min-width: 360px;
+            height: 100vh;
+            background: rgba(15, 15, 22, 0.95);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 10;
+        }
+        #sidebar::-webkit-scrollbar { width: 5px; }
+        #sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+        .sidebar-inner { padding: 24px 20px; display: flex; flex-direction: column; gap: 18px; }
+
+        .brand h1 {
+            font-size: 22px; font-weight: 700;
+            background: linear-gradient(135deg, #ff007f, #00ffcc);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .brand .tagline {
+            font-size: 9px; color: #718096; text-transform: uppercase;
+            letter-spacing: 1.8px; font-weight: 600; margin-top: 5px;
+        }
+
+        /* Stats */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+            background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .stat { text-align: center; }
+        .stat .val { font-size: 16px; font-weight: 700; color: #fff; }
+        .stat .lbl { font-size: 8px; color: #a0aec0; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+        /* Sections */
+        .section { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; }
+        .section h3 { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Legend */
+        .legend { display: flex; flex-direction: column; gap: 6px; font-size: 11px; }
+        .legend-row { display: flex; align-items: center; gap: 8px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+        .event-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+        .etag {
+            font-size: 9px; padding: 3px 8px; border-radius: 5px;
+            font-weight: 700; letter-spacing: 0.2px;
+        }
+        .etag-acc { background: rgba(215,48,39,0.15); color: #ff5252; border: 1px solid rgba(215,48,39,0.4); }
+        .etag-brk { background: rgba(252,141,89,0.15); color: #ff9f43; border: 1px solid rgba(252,141,89,0.4); }
+        .etag-fld { background: rgba(69,117,180,0.15); color: #54a0ff; border: 1px solid rgba(69,117,180,0.4); }
+        .etag-pot { background: rgba(254,224,139,0.15); color: #ffd35c; border: 1px solid rgba(254,224,139,0.4); }
+        .etag-wrk { background: rgba(152,78,163,0.15); color: #c582ff; border: 1px solid rgba(152,78,163,0.4); }
+
+        /* ── Search ── */
+        .search-wrap { position: relative; }
+        #road-search {
+            width: 100%; padding: 10px 14px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05); border-radius: 8px; color: #fff;
+            font-size: 12px; outline: none; transition: all 0.3s;
+        }
+        #road-search:focus {
+            border-color: #00ffcc; background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 12px rgba(0,255,204,0.25);
+        }
+        #search-results {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: #13131c; border: 1px solid rgba(255,255,255,0.1);
+            border-top: none; border-radius: 0 0 8px 8px;
+            list-style: none; max-height: 200px; overflow-y: auto;
+            z-index: 100; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        #search-results li {
+            padding: 9px 14px; font-size: 11px; cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.05); color: #cbd5e0;
+            transition: all 0.15s;
+        }
+        #search-results li:hover {
+            background: rgba(0,255,204,0.15); color: #00ffcc; padding-left: 18px;
+        }
+
+        /* Simulation */
+        #sim-panel {
+            background: rgba(255,255,255,0.03); border-radius: 10px; padding: 14px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        #sim-placeholder { font-size: 11px; color: #a0aec0; }
+
+        #sim-active { display: none; }
+        .road-label { font-size: 13px; font-weight: 700; color: #00ffcc; margin-bottom: 4px; }
+        .road-speed { font-size: 11px; color: #cbd5e0; margin-bottom: 10px; }
+
+        .forecast-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;
+            font-size: 11px; margin-bottom: 12px;
+            background: rgba(0,255,204,0.04); padding: 8px 10px; border-radius: 6px;
+            border: 1px solid rgba(0,255,204,0.12);
+        }
+        .forecast-grid .fc-label { color: #a0aec0; }
+        .forecast-grid .fc-val { text-align: right; font-weight: 600; }
+
+        .sim-btns { display: flex; gap: 6px; margin-bottom: 6px; }
+        .sim-btns button {
+            flex: 1; border: none; padding: 7px 4px; border-radius: 5px;
+            color: #fff; font-weight: 700; font-size: 10px; cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.15s;
+        }
+        .sim-btns button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        .btn-acc { background: #ff9f43; }
+        .btn-sev { background: #ff5252; }
+        .btn-cls { background: #d73027; }
+        .btn-rst {
+            width: 100%; background: #4a5568; border: none; padding: 7px;
+            border-radius: 5px; color: #fff; font-weight: 600; font-size: 11px;
+            cursor: pointer; margin-top: 6px;
+        }
+
+        /* ── Simulator Tabs ── */
+        .sim-tabs { display: flex; background: rgba(255,255,255,0.04); border-radius: 6px; padding: 2px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.06); }
+        .sim-tab-btn { flex: 1; border: none; background: none; color: #a0aec0; padding: 6px 4px; font-size: 10px; font-weight: 600; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .sim-tab-btn.active { background: #00ffcc; color: #0a0a12; font-weight: 700; box-shadow: 0 2px 8px rgba(0,255,204,0.3); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ── Form Controls ── */
+        .form-group { margin-bottom: 10px; }
+        .form-label { display: block; font-size: 10px; text-transform: uppercase; color: #a0aec0; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .form-select, .form-range { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; padding: 6px 10px; font-size: 11px; outline: none; }
+        .form-select option { background: #13131c; color: #fff; }
+        
+        .slider-wrap { display: flex; align-items: center; gap: 8px; }
+        .slider-val { font-size: 11px; font-weight: 700; color: #00ffcc; min-width: 32px; text-align: right; }
+
+        .btn-primary-sim {
+            width: 100%; border: none; padding: 8px; border-radius: 6px;
+            background: linear-gradient(135deg, #00ffcc, #0099ff); color: #0a0a12;
+            font-weight: 700; font-size: 11px; cursor: pointer; transition: all 0.2s;
+            margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .btn-primary-sim:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(0,255,204,0.4); }
+
+        .btn-secondary-sim {
+            width: 100%; border: 1px solid rgba(0,255,204,0.3); padding: 7px; border-radius: 6px;
+            background: rgba(0,255,204,0.05); color: #00ffcc;
+            font-weight: 700; font-size: 11px; cursor: pointer; transition: all 0.2s;
+            margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .btn-secondary-sim:hover { background: rgba(0,255,204,0.15); box-shadow: 0 4px 12px rgba(0,255,204,0.2); }
+
+        /* ── Comparison Cards & Reports ── */
+        .comp-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 10px; margin-top: 10px; }
+        .comp-title { font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 4px; text-transform: uppercase; }
+        .comp-row { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+        .comp-lbl { color: #a0aec0; }
+        .comp-val { font-weight: 600; color: #e2e8f0; }
+        .comp-val.highlight { color: #ff5252; }
+        .comp-val.good { color: #00ffcc; }
+
+        .brief-card { background: rgba(255,204,0,0.06); border: 1px solid rgba(255,204,0,0.25); border-radius: 8px; padding: 10px; margin-top: 10px; }
+        .brief-title { font-size: 11px; font-weight: 700; color: #ffcc00; margin-bottom: 6px; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+        .brief-text { font-family: monospace; font-size: 10px; color: #cbd5e0; white-space: pre-line; line-height: 1.4; }
+
+        .road-list { list-style: none; padding-left: 0; margin-top: 4px; }
+        .road-list-item { font-size: 10px; color: #cbd5e0; display: flex; justify-content: space-between; border-bottom: 1px dotted rgba(255,255,255,0.05); padding: 2px 0; }
+        .road-list-item span.cong { color: #ff5252; font-weight: 600; }
+
+        /* Results */
+        #sim-results {
+            display: none; margin-top: 12px; font-size: 11px;
+            background: rgba(0,0,0,0.25); padding: 12px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05); line-height: 1.5;
+        }
+        #sim-results h4 { color: #ffcc00; font-size: 12px; margin-bottom: 6px; }
+
+        .gnn-section {
+            border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; margin-top: 10px;
+        }
+        .gnn-section h4 { color: #00ffcc; font-size: 12px; margin-bottom: 6px; }
+        #gnn-timeline {
+            font-family: 'Courier New', monospace; font-size: 11px;
+            color: #cbd5e0; white-space: pre-line; line-height: 1.5;
+        }
+
+        /* ── Map Container ── */
+        #map-container { flex: 1; height: 100vh; position: relative; }
+        #map-container iframe { width: 100%; height: 100%; border: none; }
+
+        /* Loading overlay */
+        #loading-overlay {
+            position: absolute; inset: 0; background: #0a0a12;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 5; transition: opacity 0.4s;
+        }
+        #loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loader { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #00ffcc; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<div id="sidebar">
+    <div class="sidebar-inner">
+
+        <!-- Brand -->
+        <div class="brand">
+            <h1>Bangalore Traffic Twin</h1>
+            <div class="tagline">Foundation Module Dashboard</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat"><div class="val">{{ stats.nodes }}</div><div class="lbl">Nodes</div></div>
+            <div class="stat"><div class="val">{{ stats.edges }}</div><div class="lbl">Edges</div></div>
+            <div class="stat"><div class="val">{{ stats.events }}</div><div class="lbl">Events</div></div>
+        </div>
+
+        <!-- Legend -->
+        <div class="section">
+            <h3>Network Layers</h3>
+            <div class="legend">
+                <div class="legend-row"><span class="legend-dot" style="background:#ff0055;box-shadow:0 0 6px #ff0055"></span>Motorways (70 km/h)</div>
+                <div class="legend-row"><span class="legend-dot" style="background:#ffcc00;box-shadow:0 0 6px #ffcc00"></span>Primary Roads (50 km/h)</div>
+                <div class="legend-row"><span class="legend-dot" style="background:#00ffcc;box-shadow:0 0 6px #00ffcc"></span>Secondary Roads (40 km/h)</div>
+                <div class="legend-row"><span class="legend-dot" style="background:#0099ff;box-shadow:0 0 6px #0099ff"></span>Tertiary Roads (30 km/h)</div>
+            </div>
+        </div>
+
+        <!-- Events -->
+        <div class="section">
+            <h3>Astram Incident Key</h3>
+            <div class="event-tags">
+                <span class="etag etag-acc">Accident</span>
+                <span class="etag etag-brk">Breakdown</span>
+                <span class="etag etag-fld">Flood</span>
+                <span class="etag etag-pot">Pothole</span>
+                <span class="etag etag-wrk">Work</span>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="section">
+            <h3>Query Road Network</h3>
+            <div class="search-wrap">
+                <input type="text" id="road-search" placeholder="Type road name... (e.g. Silk Board, ORR)" autocomplete="off">
+                <ul id="search-results"></ul>
+            </div>
+        </div>
+
+        <!-- Simulation Panel -->
+        <div class="section">
+            <h3>Twin Simulator &amp; Query</h3>
+            <div id="sim-panel">
+                <div id="sim-placeholder">Select a road from search results to query speeds or simulate closures.</div>
+                <div id="sim-active">
+                    <div class="road-label" id="sel-road-name">Road: —</div>
+                    <div class="road-speed">Normal Speed: <span id="sel-road-speed">—</span> km/h</div>
+
+                    <!-- Tabs -->
+                    <div class="sim-tabs">
+                        <button class="sim-tab-btn active" id="tab-btn-incident" onclick="switchSimTab('incident')">Incidents</button>
+                        <button class="sim-tab-btn" id="tab-btn-closure" onclick="switchSimTab('closure')">Road Closures</button>
+                        <button class="sim-tab-btn" id="tab-btn-signal" onclick="switchSimTab('signal')">Signal AI</button>
+                    </div>
+
+                    <!-- Tab content: Incidents -->
+                    <div id="tab-incident" class="tab-content active">
+                        <!-- ML Forecasts -->
+                        <div class="forecast-grid" id="forecast-panel" style="display:none;">
+                            <span class="fc-label">Current:</span><span class="fc-val" id="fc-current">—</span>
+                            <span class="fc-label">+15 min:</span><span class="fc-val" id="fc-15">—</span>
+                            <span class="fc-label">+30 min:</span><span class="fc-val" id="fc-30">—</span>
+                            <span class="fc-label">+60 min:</span><span class="fc-val" id="fc-60">—</span>
+                        </div>
+
+                        <div class="sim-btns">
+                            <button class="btn-acc" onclick="runSimulation(0.4)">Accident</button>
+                            <button class="btn-sev" onclick="runSimulation(0.7)">Severe Crash</button>
+                            <button class="btn-cls" onclick="runSimulation(1.0)">Closure</button>
+                        </div>
+                    </div>
+
+                    <!-- Tab content: Closures -->
+                    <div id="tab-closure" class="tab-content">
+                        <div class="form-group">
+                            <label class="form-label">Closure Severity / Type</label>
+                            <select id="closure-type" class="form-select" onchange="togglePercentageSlider()">
+                                <option value="full">Full Road Closure (100%)</option>
+                                <option value="partial">Partial Closure (%)</option>
+                                <option value="barricade">Lane Reduction / Barricade</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="percentage-group" style="display:none;">
+                            <label class="form-label">Closure Percentage</label>
+                            <div class="slider-wrap">
+                                <input type="range" id="closure-percentage" class="form-range" min="10" max="90" step="5" value="50" oninput="updateSliderVal(this.value)">
+                                <span class="slider-val" id="slider-val-label">50%</span>
+                            </div>
+                        </div>
+
+                        <button class="btn-primary-sim" onclick="simulateRoadClosure()">Simulate Closure</button>
+                    </div>
+                    
+                    <!-- Tab content: Signal AI -->
+                    <div id="tab-signal" class="tab-content">
+                        <button class="btn-primary-sim" onclick="optimizeSignalAI()">Optimize Traffic Signals</button>
+                        <div style="margin-top: 8px; font-size: 10px; color: #a0aec0; line-height: 1.4;">
+                            Uses SURTRAC-style pressure propagation and green-wave offsets to coordinate junctions.
+                        </div>
+                    </div>
+
+                    <button class="btn-rst" onclick="resetSimulation()">Reset Network</button>
+                </div>
+
+                <!-- Results -->
+                <div id="sim-results">
+                    <h4>Simulation &amp; ML Outputs:</h4>
+                    
+                    <!-- Incident Outputs -->
+                    <div id="incident-results-section">
+                        <div id="ml-impact"></div>
+                        <div id="prop-impact" style="margin-top:8px;"></div>
+                        <div class="gnn-section" id="gnn-timeline-section">
+                            <h4>ST-GNN Propagation Timeline:</h4>
+                            <div id="gnn-timeline"></div>
+                        </div>
+                    </div>
+
+                    <!-- Closure / Diversion Outputs -->
+                    <div id="closure-results-section" style="display:none;">
+                        <!-- Before/After card -->
+                        <div class="comp-card" id="before-after-card" style="display:none;">
+                            <div class="comp-title">Before vs After Analysis</div>
+                            <div class="comp-row">
+                                <span class="comp-lbl">Status:</span>
+                                <span class="comp-val highlight" id="closure-status-lbl">CLOSED</span>
+                            </div>
+                            <div class="comp-row">
+                                <span class="comp-lbl">Traffic Delay Added:</span>
+                                <span class="comp-val highlight" id="closure-delay">0 min</span>
+                            </div>
+                            <div class="comp-row">
+                                <span class="comp-lbl">Impact Area Radius:</span>
+                                <span class="comp-val" id="closure-radius">0.0 km</span>
+                            </div>
+                            <div class="comp-row">
+                                <span class="comp-lbl">Avg Speed Drop:</span>
+                                <span class="comp-val" id="closure-speed-drop">0.0 km/h</span>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <span class="form-label" style="margin-bottom: 2px;">Affected Road Segments:</span>
+                                <ul class="road-list" id="closure-affected-roads">
+                                    <li class="road-list-item">None</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Actionable Brief card -->
+                        <div class="brief-card" id="police-brief-card" style="display:none;">
+                            <div class="brief-title">👮 Actionable Police Brief</div>
+                            <div class="brief-text" id="police-brief-text">No active recommendations.</div>
+                        </div>
+
+                        <!-- Detours comparison -->
+                        <div class="comp-card" id="detours-card" style="display:none;">
+                            <div class="comp-title">Diversion Strategies Evaluated</div>
+                            <div style="display:flex; flex-direction:column; gap:8px;" id="detours-comparison-list">
+                                <!-- Alternatives go here -->
+                        </div>
+                    </div>
+                    </div>
+
+                    <!-- Signal AI Outputs -->
+                    <div id="signal-results-section" style="display:none;">
+                        <!-- Before/After card -->
+                        <div class="comp-card" id="signal-before-after-card">
+                            <div class="comp-title">Signal Optimization Metrics</div>
+                            <div class="comp-row">
+                                <span class="comp-lbl">Junction:</span>
+                                <span class="comp-val good" id="sig-junc-name">—</span>
+                            </div>
+                            <div class="comp-row">
+                                <span class="comp-lbl">Signal ID:</span>
+                                <span class="comp-val" id="sig-junc-id">—</span>
+                            </div>
+                            <div class="comp-row">
+                                <span class="comp-lbl">Fixed Wait Time:</span>
+                                <span class="comp-val highlight" id="sig-fixed-wait">—</span>
+                            </div>
+                            <div class="comp-row">
+                                <span class="comp-lbl">AI Wait Time:</span>
+                                <span class="comp-val good" id="sig-ai-wait">—</span>
+                            </div>
+                            <div class="comp-row">
+                                <span class="comp-lbl">Wait Time Saved:</span>
+                                <span class="comp-val good" id="sig-wait-saved">—</span>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <span class="form-label" style="margin-bottom: 2px;">Timing Adjustments:</span>
+                                <ul class="road-list" id="sig-adjustments-list">
+                                    <li class="road-list-item">None</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Action Plan brief -->
+                        <div class="brief-card" id="signal-brief-card" style="display:none;">
+                            <div class="brief-title">🚦 Signal Coordination Brief</div>
+                            <div class="brief-text" id="signal-brief-text">No active coordination plan.</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── MAP ── -->
+<div id="map-container">
+    <div id="loading-overlay"><div class="loader"></div></div>
+    <iframe id="map-frame" src="/map"></iframe>
+</div>
+
+<script>
+// ─── Road Data from Backend (Jinja2 injection) ───
+var roadData = {{ road_data | tojson }};
+
+var selectedRoadName = null;
+var selectedRoadSpeed = 30;
+var selectedEdgeId = '';
+
+// ─── Search ───
+var searchInput = document.getElementById('road-search');
+var searchResults = document.getElementById('search-results');
+
+searchInput.addEventListener('input', function() {
+    var q = this.value.toLowerCase().trim();
+    searchResults.innerHTML = '';
+    if (q.length < 2) { searchResults.style.display = 'none'; return; }
+
+    // Normalize: strip spaces for flexible matching ("silk board" matches "Silkboard")
+    var qNorm = q.replace(/\s+/g, '');
+
+    var matches = roadData.filter(function(r) {
+        return r.name.toLowerCase().replace(/\s+/g, '').indexOf(qNorm) !== -1;
+    }).slice(0, 12);
+
+    if (matches.length === 0) { searchResults.style.display = 'none'; return; }
+
+    matches.forEach(function(r) {
+        var li = document.createElement('li');
+        li.textContent = r.name;
+        li.addEventListener('click', function() {
+            searchInput.value = r.name;
+            searchResults.style.display = 'none';
+            selectRoad(r.name, r.speed || 30, r.edge_id || '', false);
+        });
+        searchResults.appendChild(li);
+    });
+    searchResults.style.display = 'block';
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    if (e.target !== searchInput) searchResults.style.display = 'none';
+});
+
+// ─── Select Road ───
+window.selectRoad = function(name, speed, edgeId, skipMapUpdate) {
+    selectedRoadName = name;
+    selectedRoadSpeed = speed;
+    selectedEdgeId = edgeId;
+
+    document.getElementById('sel-road-name').textContent = 'Road: ' + name;
+    document.getElementById('sel-road-speed').textContent = Math.round(speed);
+    document.getElementById('sim-placeholder').style.display = 'none';
+    document.getElementById('sim-active').style.display = 'block';
+    document.getElementById('sim-results').style.display = 'none';
+
+    // Fetch ML forecasts
+    var fpanel = document.getElementById('forecast-panel');
+    if (edgeId) {
+        fpanel.style.display = 'grid';
+        setForecastCell('fc-current', '…');
+        setForecastCell('fc-15', '…');
+        setForecastCell('fc-30', '…');
+        setForecastCell('fc-60', '…');
+
+        fetch('/api/predict_traffic?edge_id=' + encodeURIComponent(edgeId))
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.error) { fpanel.style.display = 'none'; return; }
+                setForecastCell('fc-current', d.current);
+                setForecastCell('fc-15', d['15_min']);
+                setForecastCell('fc-30', d['30_min']);
+                setForecastCell('fc-60', d['60_min']);
+            })
+            .catch(function() { fpanel.style.display = 'none'; });
+    } else {
+        fpanel.style.display = 'none';
+    }
+
+    // Tell the iframe map to highlight and zoom (unless skipped)
+    if (!skipMapUpdate) {
+        var iframe = document.getElementById('map-frame');
+        if (iframe && iframe.contentWindow && typeof iframe.contentWindow.highlightRoadOnMap === 'function') {
+            // Find coordinates in roadData
+            var found = roadData.find(function(r) { return r.name.toLowerCase() === name.toLowerCase(); });
+            if (found) {
+                iframe.contentWindow.highlightRoadOnMap(name, found.lat, found.lng);
+            }
+        }
+    }
+};
+
+function setForecastCell(id, val) {
+    document.getElementById(id).textContent = val;
+}
+
+// ─── Simulation ───
+function runSimulation(factor) {
+    if (!selectedRoadName) return;
+
+    var cause = factor === 0.7 ? 'accident' : (factor === 1.0 ? 'road_closure' : 'vehicle_breakdown');
+    var resultsDiv = document.getElementById('sim-results');
+    var mlDiv = document.getElementById('ml-impact');
+    var propDiv = document.getElementById('prop-impact');
+    var gnnDiv = document.getElementById('gnn-timeline');
+
+    resultsDiv.style.display = 'block';
+    mlDiv.innerHTML = '<span style="color:#a0aec0">Calculating ML predictions…</span>';
+    propDiv.innerHTML = '';
+    gnnDiv.innerHTML = '<span style="color:#a0aec0">Running ST-GNN propagation model…</span>';
+
+    // 1) Run Simulation on Map
+    var iframe = document.getElementById('map-frame');
+    if (iframe && iframe.contentWindow && typeof iframe.contentWindow.runSimulationOnMap === 'function') {
+        iframe.contentWindow.runSimulationOnMap(factor);
+    }
+
+    // 2) Event Impact Prediction
+    fetch('/api/predict_event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_cause: cause, location: selectedRoadName, time: '8:30 AM', vehicle: 'truck' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.error) throw new Error(d.error);
+        var impactColor = d.impact === 'HIGH' ? '#ff5252' : '#ff9f43';
+        mlDiv.innerHTML =
+            '<div style="margin-bottom:6px;line-height:1.5">' +
+            '• <b>ML Impact:</b> <span style="color:' + impactColor + ';font-weight:700">' + d.impact + '</span> (Score: ' + d.impact_score + ')<br>' +
+            '• <b>Duration:</b> ' + d.duration + '<br>' +
+            '• <b>Closure Prob:</b> ' + Math.round(d.closure_probability * 100) + '%' +
+            '</div>' +
+            '<div style="color:#ffcc00;font-family:monospace;font-size:10px;background:rgba(0,0,0,0.2);padding:6px;border-radius:4px;white-space:pre-line;line-height:1.35">' +
+            d.explanation + '</div>';
+    })
+    .catch(function(err) {
+        var newSpeed = Math.max(1, selectedRoadSpeed * (1 - factor));
+        mlDiv.innerHTML = '• Speed Drop: ' + Math.round(selectedRoadSpeed) + ' → ' + Math.round(newSpeed) + ' km/h (-' + Math.round(factor * 100) + '%)';
+    });
+
+    // 3) ST-GNN Propagation
+    var gnnImpact = factor === 0.7 ? 0.9 : factor;
+    fetch('/api/predict_stgnn', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location: selectedRoadName, impact_score: gnnImpact })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.error) throw new Error(d.error);
+        var t = d.timeline;
+        var html = '';
+
+        if (t['0'] && t['0'].length > 0) {
+            html += '<b style="color:#ff5252">⏱ TIME 0:</b>\n';
+            t['0'].forEach(function(item) { html += '  ' + item.road_name + ': ' + item.congestion_pct + '%\n'; });
+            html += '\n';
+        }
+        if (t['15min'] && t['15min'].length > 0) {
+            html += '<b style="color:#ff9f43">⏱ +15 min:</b>\n';
+            t['15min'].forEach(function(item) { html += '  ' + item.road_name + ': ' + item.congestion_pct + '%\n'; });
+            html += '\n';
+        }
+        if (t['30min'] && t['30min'].length > 0) {
+            html += '<b style="color:#ffd35c">⏱ +30 min:</b>\n';
+            t['30min'].forEach(function(item) { html += '  ' + item.road_name + ': ' + item.congestion_pct + '%\n'; });
+        }
+
+        gnnDiv.innerHTML = html || 'No propagation data.';
+
+        // Also populate propagation impact summary
+        var allRoads = [];
+        ['15min', '30min'].forEach(function(key) {
+            if (t[key]) t[key].forEach(function(item) {
+                if (item.road_name !== selectedRoadName) allRoads.push(item.road_name);
+            });
+        });
+        if (allRoads.length > 0) {
+            propDiv.innerHTML = '<b>Affected roads:</b> ' + allRoads.join(', ');
+        } else {
+            propDiv.innerHTML = 'No nearby roads directly affected.';
+        }
+    })
+    .catch(function(err) {
+        gnnDiv.innerHTML = 'ST-GNN model offline or not trained.';
+    });
+}
+
+function resetSimulation() {
+    document.getElementById('sim-results').style.display = 'none';
+    document.getElementById('before-after-card').style.display = 'none';
+    document.getElementById('police-brief-card').style.display = 'none';
+    document.getElementById('detours-card').style.display = 'none';
+    
+    var sigResults = document.getElementById('signal-results-section');
+    if (sigResults) sigResults.style.display = 'none';
+    
+    var iframe = document.getElementById('map-frame');
+    if (iframe && iframe.contentWindow && typeof iframe.contentWindow.resetMapSimulation === 'function') {
+        iframe.contentWindow.resetMapSimulation();
+    }
+}
+
+// ─── Task 5 Road Closure Handlers ───
+window.switchSimTab = function(tabName) {
+    // Toggle active buttons
+    document.getElementById('tab-btn-incident').classList.toggle('active', tabName === 'incident');
+    document.getElementById('tab-btn-closure').classList.toggle('active', tabName === 'closure');
+    
+    var signalBtn = document.getElementById('tab-btn-signal');
+    if (signalBtn) signalBtn.classList.toggle('active', tabName === 'signal');
+    
+    // Toggle active tab content panels
+    document.getElementById('tab-incident').classList.toggle('active', tabName === 'incident');
+    document.getElementById('tab-closure').classList.toggle('active', tabName === 'closure');
+    
+    var signalTab = document.getElementById('tab-signal');
+    if (signalTab) signalTab.classList.toggle('active', tabName === 'signal');
+    
+    // Clear outputs when switching tabs
+    document.getElementById('sim-results').style.display = 'none';
+};
+
+window.togglePercentageSlider = function() {
+    var cType = document.getElementById('closure-type').value;
+    document.getElementById('percentage-group').style.display = cType === 'partial' ? 'block' : 'none';
+};
+
+window.updateSliderVal = function(val) {
+    document.getElementById('slider-val-label').textContent = val + '%';
+};
+
+window.simulateRoadClosure = function() {
+    if (!selectedEdgeId) {
+        alert('Please select a road to simulate closure first.');
+        return;
+    }
+    
+    var cType = document.getElementById('closure-type').value;
+    var pct = 100.0;
+    var payloadType = 'full';
+    
+    if (cType === 'partial') {
+        payloadType = 'partial';
+        pct = parseFloat(document.getElementById('closure-percentage').value);
+    } else if (cType === 'barricade') {
+        payloadType = 'partial';
+        pct = 30.0; // Barricade defaults to 30% reduction
+    }
+    
+    var resultsDiv = document.getElementById('sim-results');
+    var incSection = document.getElementById('incident-results-section');
+    var clsSection = document.getElementById('closure-results-section');
+    
+    resultsDiv.style.display = 'block';
+    incSection.style.display = 'none';
+    clsSection.style.display = 'block';
+    
+    // Show before/after card and load placeholder state
+    document.getElementById('before-after-card').style.display = 'block';
+    document.getElementById('police-brief-card').style.display = 'none';
+    document.getElementById('detours-card').style.display = 'none';
+    
+    document.getElementById('closure-status-lbl').textContent = cType.toUpperCase() + (cType === 'partial' ? ' (' + pct + '%)' : '');
+    document.getElementById('closure-delay').innerHTML = '<span style="color:#a0aec0">Simulating...</span>';
+    document.getElementById('closure-radius').textContent = '—';
+    document.getElementById('closure-speed-drop').textContent = '—';
+    document.getElementById('closure-affected-roads').innerHTML = '<li class="road-list-item" style="color:#a0aec0">Calculating redistributed flow...</li>';
+    
+    // Trigger map simulation if available
+    var iframe = document.getElementById('map-frame');
+    if (iframe && iframe.contentWindow && typeof iframe.contentWindow.runSimulationOnMap === 'function') {
+        iframe.contentWindow.runSimulationOnMap(pct / 100.0);
+    }
+    
+    fetch('/api/simulate_closure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            edge_id: selectedEdgeId,
+            type: payloadType,
+            closure_percentage: pct
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.error) throw new Error(d.error);
+        var report = d.report;
+        
+        document.getElementById('closure-delay').textContent = report.delay_added;
+        document.getElementById('closure-radius').textContent = report.metrics.impact_radius_km.toFixed(2) + ' km';
+        document.getElementById('closure-speed-drop').textContent = report.metrics.average_speed_drop_kmph.toFixed(1) + ' km/h';
+        
+        var listHtml = '';
+        if (report.affected_roads && report.affected_roads.length > 0) {
+            report.affected_roads.slice(0, 5).forEach(function(r) {
+                listHtml += '<li class="road-list-item"><span>' + r.road + '</span><span class="cong">' + r.congestion_increase + '</span></li>';
+            });
+            if (report.affected_roads.length > 5) {
+                listHtml += '<li class="road-list-item" style="justify-content:center;color:#a0aec0">... and ' + (report.affected_roads.length - 5) + ' more</li>';
+            }
+        } else {
+            listHtml = '<li class="road-list-item">None</li>';
+        }
+        document.getElementById('closure-affected-roads').innerHTML = listHtml;
+    })
+    .catch(function(err) {
+        document.getElementById('closure-delay').textContent = 'Error: ' + err.message;
+        document.getElementById('closure-affected-roads').innerHTML = '<li class="road-list-item" style="color:#ff5252">Simulation failed.</li>';
+    });
+};
+
+window.runDiversionAI = function() {
+    if (!selectedEdgeId) {
+        alert('Please select a road to run diversion optimization first.');
+        return;
+    }
+    
+    var resultsDiv = document.getElementById('sim-results');
+    var incSection = document.getElementById('incident-results-section');
+    var clsSection = document.getElementById('closure-results-section');
+    
+    resultsDiv.style.display = 'block';
+    incSection.style.display = 'none';
+    clsSection.style.display = 'block';
+    
+    // Show brief and detour cards, hide before/after
+    document.getElementById('before-after-card').style.display = 'none';
+    document.getElementById('police-brief-card').style.display = 'block';
+    document.getElementById('detours-card').style.display = 'block';
+    
+    document.getElementById('police-brief-text').innerHTML = '<span style="color:#a0aec0">Running Diversion AI Detour Optimization...</span>';
+    document.getElementById('detours-comparison-list').innerHTML = '<div style="color:#a0aec0;font-size:11px;text-align:center;padding:10px;">Evaluating detour routes with Yen\'s algorithm...</div>';
+    
+    fetch('/api/optimize_diversion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ edge_id: selectedEdgeId })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.error) throw new Error(d.error);
+        var rec = d.recommendation;
+        var brief = d.brief;
+        
+        document.getElementById('police-brief-text').textContent = brief;
+        
+        var listHtml = '';
+        rec.alternatives_compared.forEach(function(alt) {
+            var isRec = alt.strategy === rec.recommended_strategy;
+            var borderStyle = isRec ? 'border:1px solid #00ffcc; background:rgba(0,255,204,0.06)' : 'border:1px solid rgba(255,255,255,0.05)';
+            var badge = isRec ? ' <span style="background:#00ffcc;color:#0a0a12;font-size:8px;padding:2px 4px;border-radius:3px;font-weight:800;margin-left:4px;">RECOMMENDED</span>' : '';
+            
+            listHtml += '<div style="padding:8px; border-radius:6px; ' + borderStyle + '; font-size:11px;">' +
+                '<div style="font-weight:700; color:#fff; display:flex; justify-content:space-between; margin-bottom:4px;">' +
+                '<span>' + alt.strategy + badge + '</span>' +
+                '<span style="color:#ffcc00">Score: ' + alt.score.toFixed(2) + '</span>' +
+                '</div>' +
+                '<div style="color:#a0aec0; font-size:10px; margin-bottom:4px;">' + alt.description + '</div>' +
+                '<div style="display:flex; justify-content:space-between; font-size:10px; color:#cbd5e0;">' +
+                '<span>Delay: ' + alt.average_delay_min.toFixed(1) + ' min</span>' +
+                '<span>Max Cong: ' + Math.round(alt.max_congestion * 100) + '%</span>' +
+                '</div>' +
+                '</div>';
+        });
+        document.getElementById('detours-comparison-list').innerHTML = listHtml;
+    })
+    .catch(function(err) {
+        document.getElementById('police-brief-text').textContent = 'Diversion AI Error: ' + err.message;
+        document.getElementById('detours-comparison-list').innerHTML = '<div style="color:#ff5252;font-size:11px;text-align:center;">Failed to compute recommendations.</div>';
+    });
+};
+
+window.optimizeSignalAI = function() {
+    if (!selectedRoadName) {
+        alert('Please select a road/location to optimize signals first.');
+        return;
+    }
+    
+    var resultsDiv = document.getElementById('sim-results');
+    var incSection = document.getElementById('incident-results-section');
+    var clsSection = document.getElementById('closure-results-section');
+    
+    var sigSection = document.getElementById('signal-results-section');
+    
+    resultsDiv.style.display = 'block';
+    incSection.style.display = 'none';
+    clsSection.style.display = 'none';
+    if (sigSection) sigSection.style.display = 'block';
+    
+    document.getElementById('sig-junc-name').textContent = 'Optimizing...';
+    document.getElementById('sig-junc-id').textContent = '—';
+    document.getElementById('sig-fixed-wait').textContent = '—';
+    document.getElementById('sig-ai-wait').textContent = '—';
+    document.getElementById('sig-wait-saved').textContent = '—';
+    document.getElementById('sig-adjustments-list').innerHTML = '<li class="road-list-item" style="color:#a0aec0">Running queue simulation...</li>';
+    document.getElementById('signal-brief-card').style.display = 'none';
+    
+    var cType = document.getElementById('closure-type').value;
+    var pct = 100.0;
+    var payloadType = 'full';
+    if (cType === 'partial') {
+        payloadType = 'partial';
+        pct = parseFloat(document.getElementById('closure-percentage').value);
+    } else if (cType === 'barricade') {
+        payloadType = 'partial';
+        pct = 30.0;
+    }
+    
+    fetch('/api/optimize_signals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            accident_location: selectedRoadName,
+            type: payloadType,
+            closure_percentage: pct
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.error) throw new Error(d.error);
+        var report = d.report;
+        
+        document.getElementById('sig-junc-name').textContent = report.signal;
+        document.getElementById('sig-junc-id').textContent = report.signal_id;
+        
+        var fixedW = report.evaluation.fixed.average_wait_sec.toFixed(1) + 's';
+        var aiW = report.evaluation.ai.average_wait_sec.toFixed(1) + 's';
+        var savedW = report.evaluation.metrics.waiting_time_reduction_pct.toFixed(1) + '%';
+        
+        document.getElementById('sig-fixed-wait').textContent = fixedW;
+        document.getElementById('sig-ai-wait').textContent = aiW;
+        document.getElementById('sig-wait-saved').textContent = savedW;
+        
+        var listHtml = '';
+        if (report.changes && report.changes.length > 0) {
+            report.changes.forEach(function(c) {
+                var diff = c.new_green - c.old_green;
+                var sign = diff >= 0 ? '+' : '';
+                listHtml += '<li class="road-list-item"><span>' + c.direction + '</span><span>' + c.old_green + 's -> ' + c.new_green + 's (' + sign + diff + 's)</span></li>';
+            });
+        } else {
+            listHtml = '<li class="road-list-item">No green time adjustments required (balanced flows).</li>';
+        }
+        document.getElementById('sig-adjustments-list').innerHTML = listHtml;
+        
+        // Fetch recommendations brief
+        fetch('/api/signal_timings')
+        .then(function(r) { return r.json(); })
+        .then(function(sData) {
+            var recs = sData.recommendations;
+            if (recs && recs.recommendations && recs.recommendations.length > 0) {
+                document.getElementById('signal-brief-card').style.display = 'block';
+                var briefHtml = '';
+                recs.recommendations.slice(0, 3).forEach(function(recItem) {
+                    briefHtml += '• <b>' + recItem.type + ':</b> ' + recItem.action + ' at ' + recItem.location + ' (Priority: ' + recItem.priority + ')\n';
+                });
+                document.getElementById('signal-brief-text').innerHTML = briefHtml;
+            }
+        });
+    })
+    .catch(function(err) {
+        document.getElementById('sig-junc-name').textContent = 'Error';
+        document.getElementById('sig-adjustments-list').innerHTML = '<li class="road-list-item" style="color:#ff5252">Optimization failed: ' + err.message + '</li>';
+    });
+};
+
+// ─── Map Loading ───
+document.getElementById('map-frame').addEventListener('load', function() {
+    setTimeout(function() {
+        document.getElementById('loading-overlay').classList.add('hidden');
+    }, 500);
+});
+</script>
+</body>
+</html>
+
