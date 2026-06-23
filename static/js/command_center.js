@@ -412,8 +412,9 @@ async function runCitySimulation() {
         console.error("[CC] runCitySimulation failed:", err);
         if (loadingEl) loadingEl.classList.add("hidden");
         if (emptyEl)   emptyEl.classList.remove("hidden");
-        if (statusEl) statusEl.textContent = "Simulation failed.";
-        if (tip) tip.textContent = "City simulation failed — please retry.";
+        const errMsg = err.message || "Unknown error";
+        if (statusEl) statusEl.textContent = `Simulation failed: ${errMsg}`;
+        if (tip) tip.textContent = `Simulation failed — ${errMsg}`;
     } finally {
         if (btn && btn.style.display !== "none") {
             btn.disabled  = false;
@@ -1710,7 +1711,11 @@ async function timedJsonFetch(url, options = {}, timeoutMs = 5000) {
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
         const res = await fetch(url, { ...options, signal: ctrl.signal });
-        if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+        if (!res.ok) {
+            let detail = "";
+            try { const j = await res.json(); detail = j.error || ""; } catch (_) {}
+            throw new Error(`HTTP ${res.status}: ${detail || res.statusText}`);
+        }
         return await res.json();
     } finally {
         clearTimeout(timer);

@@ -96,6 +96,28 @@ initialize_db()
 
 # ═══════════════════ ROUTES ═══════════════════
 
+@app.route("/api/debug")
+def api_debug():
+    """Quick health check — tests model loading and DB connection."""
+    import traceback
+    results = {}
+    try:
+        from ml_engine import predict_event_response
+        test = predict_event_response({"event_cause": "accident", "priority": "High", "latitude": 12.97, "longitude": 77.59})
+        results["ml_engine"] = "ok"
+        results["sample_impact"] = test.get("impact_score")
+    except Exception as e:
+        results["ml_engine"] = f"ERROR: {traceback.format_exc()}"
+    try:
+        from database.db import get_connection
+        with get_connection() as conn:
+            n = conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+        results["db"] = f"ok ({n} events)"
+    except Exception as e:
+        results["db"] = f"ERROR: {e}"
+    return jsonify(results)
+
+
 @app.route("/")
 def index():
     """
