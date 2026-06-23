@@ -9,12 +9,13 @@ Usage inside a route:
     return jsonify(rows_to_list(rows))
 """
 
+import os
 import sqlite3
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[1]
-DB_PATH  = BASE_DIR / "traffic_twin.db"
+DB_PATH  = Path("/tmp/traffic_twin.db") if "VERCEL" in os.environ else BASE_DIR / "traffic_twin.db"
 
 CREATE_EVENTS_TABLE = """
 CREATE TABLE IF NOT EXISTS events (
