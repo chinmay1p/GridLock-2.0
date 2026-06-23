@@ -15,12 +15,6 @@ BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
     sys.path.append(str(BASE_DIR))
 
-from src.models.predict import predict_event_effect, predict_future_traffic
-from src.models.model_explain import explain_event_impact
-from src.simulator.scenario_engine import simulate_scenario
-from src.simulator.diversion_optimizer import optimize_diversion
-from src.simulator.generate_report import generate_police_explanation
-
 app = Flask(__name__, template_folder=str(BASE_DIR / "templates"), static_folder=str(BASE_DIR / "static"))
 
 MAP_PATH = BASE_DIR / "outputs" / "bangalore_graph.html"
@@ -83,18 +77,6 @@ app.register_blueprint(dashboard_bp)
 
 from routes.event_routes import event_bp
 app.register_blueprint(event_bp)
-
-from routes.intervention_routes import intervention_bp
-app.register_blueprint(intervention_bp)
-
-from routes.signal_routes import signal_bp
-app.register_blueprint(signal_bp)
-
-from routes.assistant_routes import assistant_bp
-app.register_blueprint(assistant_bp)
-
-from routes.demo_routes import demo_bp
-app.register_blueprint(demo_bp)
 
 from routes.events_manager_routes import events_manager_bp
 app.register_blueprint(events_manager_bp)
@@ -205,12 +187,14 @@ def api_predict_event():
     API endpoint to predict event effect and generate SHAP explanations.
     """
     try:
+        from src.models.predict import predict_event_effect
+        from src.models.model_explain import explain_event_impact
         data = request.json or {}
         logging.info("Received event prediction request: %s", data)
-        
+
         # Run predictions
         predictions = predict_event_effect(data)
-        
+
         # Generate SHAP explanation
         explanation = explain_event_impact(data)
         predictions["explanation"] = explanation
@@ -230,8 +214,9 @@ def api_predict_traffic():
         if not edge_id:
             return jsonify({"error": "edge_id parameter is required"}), 400
             
+        from src.models.predict import predict_future_traffic
         logging.info("Received traffic forecast request for edge_id: %s", edge_id)
-        
+
         predictions = predict_future_traffic(edge_id)
         return jsonify(predictions)
     except Exception as e:
@@ -362,6 +347,7 @@ def api_simulate_closure():
     Simulates full or partial road closures and calculates traffic redistribution.
     """
     try:
+        from src.simulator.scenario_engine import simulate_scenario
         data = request.json or {}
         logging.info("Received road closure simulation request: %s", data)
         report = simulate_scenario(data)
@@ -382,6 +368,8 @@ def api_optimize_diversion():
         if not edge_id:
             return jsonify({"error": "edge_id parameter is required"}), 400
             
+        from src.simulator.diversion_optimizer import optimize_diversion
+        from src.simulator.generate_report import generate_police_explanation
         logging.info("Received diversion optimization request for edge_id: %s", edge_id)
         rec_actions = optimize_diversion(edge_id)
         brief = generate_police_explanation(rec_actions)
