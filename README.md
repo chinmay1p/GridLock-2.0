@@ -1,105 +1,110 @@
-# 🌟 Traffic Twin Bengaluru 🚦
-### *Predictive Traffic Simulation & ML-Powered Decision Support Platform*
+# ✨ Traffic Twin Bengaluru
 
-Traffic Twin Bengaluru is a smart traffic management platform that creates a digital representation of Bengaluru’s road network. It predicts congestion, simulates traffic disruptions, and assists authorities in selecting the optimal response strategy in real-time.
-
-The system combines historical traffic patterns, Bengaluru incident data, road network intelligence, and machine learning models to transition traffic management from reactive control to predictive scheduling.
+**AI-powered urban traffic digital twin for Bengaluru Traffic Police — predictive simulation, real-time decision support, and a citizen-facing live traffic dashboard.**
 
 ---
 
-## 🌟 Key Features
+## 🌆 What It Does
 
-### 🗺️ Bengaluru Traffic Digital Twin
-A virtual city traffic environment modeled using Bengaluru's major road networks and transport corridors.
-* **Interactive City Map**: Visualized through a customized Leaflet web interface.
-* **Real-time Metrics**: Tracks density, average speed, vehicle flow, and capacity per segment.
-* **Density States**: Dynamic congestion mapping (Low, Medium, High) represented with standard color codes.
+Two completely separate experiences on one platform:
 
+- 🛡️ **Police Command Center** — Run ML-backed impact simulations for any event or incident, get tactical deployment plans (named locations, officer counts, barricade points, diversion routes), and simulate multi-event city scenarios.
+- 🧭 **Citizen Dashboard** — Live city traffic status, upcoming events, active incidents, weather alerts, and a smart route planner that dynamically avoids disruptions.
 
-### ⚠️ Event Monitoring & NLP Severity Extraction
-Ingests and predicts impacts from public gatherings, sports matches (e.g., IPL), breakdowns, and water logging:
-* **Feature Vectorization**: Encodes locations, junctions, corridors, police zones, timings, and priority levels.
-* **NLP Parse pipeline**: Processes citizen and officer descriptions to identify crowd patterns, lane blockage levels, and emergency severity automatically.
-
-### ⌛ Clearance Time Prediction Model
-Predicts how long an event will impact the road network using LightGBM regressor models:
-* **Recovery Estimates**: Calculates event duration and network recovery window.
-* **Impact Levels**: Classifies overall severity to determine deployment scales.
-
-### 🕸️ Graph-Based Congestion Propagation (ST-GNN)
- Bengaluru roads are modeled as a connected graph where junctions are nodes and roads are edges:
-* **Spatial Diffusion**: Simulates how a local bottleneck propagates to surrounding roads.
-* **Impact Radius**: Numerically predicts affected zones using Spatio-Temporal Graph Neural Networks (ST-GNN).
+Both share the same SQLite database, so police-entered events appear on the citizen dashboard instantly, and citizen-submitted incident reports surface in the Command Center immediately.
 
 ---
 
-## 🛠️ Response Planning System
+## ✨ Features
 
-The platform generates recommended action plans to mitigate congestion spikes:
+### 🛡️ Police Command Center (`/command-center`)
+- **Live event queue** — all active and upcoming events sorted by severity, selectable for simulation
+- **Single-event ML simulation** — 6 LightGBM models run in under 2 seconds: clearance time, impact score (0–100), barricade intensity (0–100%), road closure decision, officer count, diversion requirement
+- **Tactical deployment planner** — translates ML outputs into named deployment locations (e.g., "17 officers — MG Road Junction"), specific barricade points with control percentages, closure segments (from/to junction, duration), and zone-appropriate diversion routes
+- **Multi-event city simulation** — saturation-based congestion combination across simultaneous events, spatial overlap detection (auto-upgrades severity and boosts manpower for co-located events), 30-min interval city timeline
+- **Response plan** — per-event officer distribution, priority zone ranking, total resource summary
+- **GIS map** — color-coded event markers with severity-based impact radius circles, deployment point overlays
+- **Weather alert management** — convert IMD/BBMP alerts to trackable police incidents in one click
+- **Event CRUD** — add, update, and resolve events including citizen-submitted reports
 
-| Strategy | Action Item | Target Parameter |
-| :--- | :--- | :--- |
-| **🚧 Barricading** | Cones, partial barricades, or full closure | Lane availability |
-| **🔀 Diversions** | Alternate route generation using weighted shortest paths | Vehicle redistribution |
-| **👮 Police Deployment** | Estimating officers needed per zone | Field enforcement |
+### 📅 Public Events Page (`/events`)
+- Summary strip with live counts (events, incidents, weather alerts)
+- Filter by All / Public Events / Incidents / Weather Alerts
+- Real-time cards with severity, status, crowd count, location, and timeline
+
+### 🧭 Citizen Dashboard (`/citizen`)
+- Dynamic city status chip (CLEAR → LOW → MEDIUM → HIGH) derived from live incident and weather data
+- Three-column live feed: upcoming events, active road incidents, weather risks
+- **Report a Problem** — citizen incident submissions flow directly to the police Command Center
+
+### 🗺️ Citizen Route Planner (`/citizen/map`)
+- Leaflet map pre-loaded with incident, event, and weather markers
+- Dijkstra pathfinding on a 41-node / 70-edge Bengaluru road graph
+- **Disruption-penalized edge weights**: incidents (up to 1.9× travel time), public events (1.6×), weather alerts (1.7×) within proximity thresholds
+- Step-by-step route breakdown with per-segment congestion label
+- "Avoided roads" list — shows which disruptions the algorithm bypassed and why
 
 ---
 
-## 💻 Tech Stack
+## 🤖 ML Pipeline
 
-* **Backend**: Flask (Python)
-* **Frontend**: HTML5, Vanilla CSS (Premium glassmorphic styling), JavaScript
-* **Mapping**: Leaflet.js
-* **ML Core**: LightGBM, Scikit-learn, joblib, PyTorch (ST-GNN implementation)
+Six LightGBM models trained on **8,173 real ASTRAM events** from Bengaluru Traffic Police:
 
----
+| Model | Type | Output |
+|---|---|---|
+| `clearance_model` | Regressor | Minutes until road clears |
+| `impact_model` | Regressor | Road impact score 0–100 |
+| `barricade_model` | Regressor | Barricading intensity 0–100% |
+| `closure_model` | Classifier | Road closure required YES/NO |
+| `manpower_model` | Regressor | Officers to deploy (5–150) |
+| `diversion_model` | Classifier | Diversion required YES/NO |
 
-## 🚀 How to Run & Use the Project
+**Feature matrix (21 features):** event cause & category (label-encoded), priority, vehicle type, is-heavy-vehicle flag, GPS coordinates, zone, corridor, junction, police station, hour, day-of-week, peak-hour flags, weekend flag, and an NLP severity score extracted from free-text descriptions via keyword matching.
 
-### 1. Prerequisites
-Ensure you have **Python 3.8+** installed.
+**Target engineering:** Four of the six targets are engineered from domain knowledge (cause-specific base values + priority multipliers + NLP score) rather than direct labels, since ASTRAM doesn't have explicit columns for barricade%, manpower, or impact score.
 
-### 2. Setup Virtual Environment
-Clone the repository, navigate to the folder, and activate the virtual environment:
+**Post-prediction hard rules:** `impact ≥ 88 AND barricade ≥ 85` forces closure; `closure = True` always forces diversion; cause-specific clearance floors prevent operationally implausible predictions.
+
+**Multi-event combination:** Saturation model — `density = 1 − ∏(1 − δᵢ)` — ensures combined congestion is physically bounded. Events within 2.5 km are flagged as overlapping (severity upgraded, manpower boosted 50%).
+
+Retrain models:
 ```bash
-# Create environment
+python train_ml_engine.py
+```
+> Requires `data/astram.csv`.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Flask (Python 3.10+), SQLite |
+| ML | LightGBM, scikit-learn, pandas, numpy, joblib |
+| Frontend | Vanilla JS, CSS custom properties |
+| Maps | Leaflet.js 1.9.4 |
+| Icons | Lucide (citizen), Material Icons (command center) |
+| Fonts | Outfit, Plus Jakarta Sans |
+| Routing | Dijkstra (heap-based, citizen route planner) |
+| Spatial math | Haversine distance (deployment planner, route weighting) |
+
+---
+
+## 🚀 Running Locally
+
+```bash
+# 1. Create and activate virtual environment
 python -m venv .venv
+.venv\Scripts\activate        # Windows
+source .venv/bin/activate     # macOS / Linux
 
-# Activate environment (Windows)
-.venv\Scripts\activate
-
-# Install dependencies
+# 2. Install dependencies
 pip install -r requirements.txt
-```
-*(If `requirements.txt` is not present, install core dependencies: `pip install flask numpy pandas scikit-learn joblib torch scipy shap`)*
 
-### 3. Initialize & Visualize the Road Network
-Generate the primary city graph HTML visualization:
-```bash
-python scripts/visualize_graph.py
-```
-
-### 4. Start the Server
-Launch the Flask development server:
-```bash
+# 3. Start the server
 python app.py
 ```
-Open **`http://127.0.0.1:5000/`** in your browser to view the Command Center.
 
+Open `http://localhost:5000` — the landing page links to both the Citizen Dashboard and the Police Command Center.
 
----
-
-## 📊 Workflow Overview
-```
-Traffic Data + Road network + Event History
-            ↓
-    Digital Traffic Twin
-            ↓
-  Event Impact Prediction
-            ↓
-  Congestion Simulation
-            ↓
-    Response Planning
-            ↓
- Optimized Traffic Management
-```
+> The SQLite database (`traffic_twin.db`) is created automatically on first run with seed events and weather alerts.

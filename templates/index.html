@@ -2,6 +2,10 @@
 
 {% block title %}Traffic Twin Bengaluru — AI-Powered Urban Mobility Simulation{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/citizen.css') }}">
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
 <section class="hero">
@@ -10,11 +14,60 @@
         <h1 class="fade-up">Traffic Twin <span>Bengaluru</span></h1>
         <p class="fade-up delay-1">AI-powered digital twin for predicting, simulating, and optimizing urban mobility disruptions.</p>
         <div class="hero-actions fade-up delay-2">
-            <a href="{{ url_for('command_center') }}" class="btn btn-primary btn-lg">
-                <span>Launch Command Center</span>
-                <i data-lucide="arrow-up-right"></i>
+            <a href="{{ url_for('citizen_dashboard') }}" class="btn btn-primary btn-lg">
+                <i data-lucide="navigation"></i>
+                <span>User Dashboard</span>
             </a>
-            <a href="#features-section" class="btn btn-outline btn-lg">Explore Technology</a>
+            <a href="{{ url_for('command_center') }}" class="btn btn-outline btn-lg">
+                <i data-lucide="shield"></i>
+                <span>Command Center</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Choose Dashboard Section -->
+<section class="choose-dashboard">
+    <div class="container">
+        <div class="choose-grid">
+            <!-- Citizen Card -->
+            <a href="{{ url_for('citizen_dashboard') }}" class="choose-card choose-card-citizen">
+                <div class="choose-card-icon">
+                    <i data-lucide="navigation"></i>
+                </div>
+                <div class="choose-card-body">
+                    <h3>For Daily Commuters</h3>
+                    <p>Check live traffic, upcoming events, weather disruptions, and plan the best route through Bengaluru.</p>
+                    <ul class="choose-feature-list">
+                        <li><i data-lucide="check"></i> Live city traffic status</li>
+                        <li><i data-lucide="check"></i> Smart route planner</li>
+                        <li><i data-lucide="check"></i> Incident &amp; event alerts</li>
+                        <li><i data-lucide="check"></i> Report road problems</li>
+                    </ul>
+                </div>
+                <div class="choose-card-cta">
+                    Open Live Dashboard <i data-lucide="arrow-right"></i>
+                </div>
+            </a>
+            <!-- Police Card -->
+            <a href="{{ url_for('command_center') }}" class="choose-card choose-card-police">
+                <div class="choose-card-icon">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <div class="choose-card-body">
+                    <h3>For Traffic Police</h3>
+                    <p>Simulate events, optimise signals, deploy interventions, and generate operational briefs using AI.</p>
+                    <ul class="choose-feature-list">
+                        <li><i data-lucide="check"></i> AI impact simulation</li>
+                        <li><i data-lucide="check"></i> Signal optimisation</li>
+                        <li><i data-lucide="check"></i> Intervention planner</li>
+                        <li><i data-lucide="check"></i> Tactical AI assistant</li>
+                    </ul>
+                </div>
+                <div class="choose-card-cta">
+                    Launch Command Center <i data-lucide="arrow-right"></i>
+                </div>
+            </a>
         </div>
     </div>
 </section>

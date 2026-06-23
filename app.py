@@ -96,6 +96,22 @@ app.register_blueprint(assistant_bp)
 from routes.demo_routes import demo_bp
 app.register_blueprint(demo_bp)
 
+from routes.events_manager_routes import events_manager_bp
+app.register_blueprint(events_manager_bp)
+
+from routes.simulation_routes import simulation_bp
+app.register_blueprint(simulation_bp)
+
+from routes.weather_routes import weather_bp
+app.register_blueprint(weather_bp)
+
+from routes.citizen_routes import citizen_bp
+app.register_blueprint(citizen_bp)
+
+# Initialize SQLite database (creates tables + seeds on first run)
+from database.db import initialize_db
+initialize_db()
+
 # ═══════════════════ ROUTES ═══════════════════
 
 @app.route("/")
@@ -128,6 +144,18 @@ def events():
     Serves the static events monitor page.
     """
     return render_template("events.html")
+
+
+@app.route("/citizen")
+def citizen_dashboard():
+    """Serves the citizen-facing traffic dashboard."""
+    return render_template("citizen_dashboard.html")
+
+
+@app.route("/citizen/map")
+def citizen_map():
+    """Serves the citizen route planner map page."""
+    return render_template("citizen_map.html")
 
 
 @app.route("/command-center")

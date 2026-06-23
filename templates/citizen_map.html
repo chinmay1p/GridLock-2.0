@@ -1,0 +1,142 @@
+{% extends "citizen_base.html" %}
+
+{% block title %}Route Planner — User Dashboard{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
+{% block content %}
+<div class="citizen-map-wrapper">
+
+    <!-- ══ ROUTE PLANNER INPUT BAR ═══════════════════════════════════════ -->
+    <div class="route-bar" id="route-bar">
+        <div class="route-bar-inner">
+            <div class="route-inputs">
+                <div class="route-input-group">
+                    <span class="route-input-dot dot-from"></span>
+                    <input type="text"
+                           id="route-from"
+                           placeholder="From — e.g. Indiranagar"
+                           list="route-locations"
+                           autocomplete="off">
+                </div>
+                <button class="route-swap-btn" id="btn-swap-route" title="Swap">
+                    <i data-lucide="arrow-up-down"></i>
+                </button>
+                <div class="route-input-group">
+                    <span class="route-input-dot dot-to"></span>
+                    <input type="text"
+                           id="route-to"
+                           placeholder="To — e.g. Electronic City"
+                           list="route-locations"
+                           autocomplete="off">
+                </div>
+                <datalist id="route-locations"></datalist>
+            </div>
+            <button class="route-go-btn" id="btn-get-route">
+                <i data-lucide="search"></i>
+                <span>Get Best Route</span>
+            </button>
+        </div>
+        <div class="route-bar-status" id="route-bar-status" style="display:none;"></div>
+    </div>
+
+    <!-- ══ MAP + PANEL ═══════════════════════════════════════════════════ -->
+    <div class="citizen-map-body">
+        <!-- Leaflet Map -->
+        <div id="citizen-leaflet-map"></div>
+
+        <!-- Route Results Panel -->
+        <div class="route-panel" id="route-panel">
+            <!-- Default state: no route yet -->
+            <div class="route-panel-empty" id="route-panel-empty">
+                <i data-lucide="map-pin-off"></i>
+                <p>Enter a start and destination above to get your best route.</p>
+                <div class="route-panel-hints">
+                    <p>Considers:</p>
+                    <ul>
+                        <li><i data-lucide="siren"></i> Active accidents &amp; breakdowns</li>
+                        <li><i data-lucide="calendar"></i> Crowd events</li>
+                        <li><i data-lucide="cloud-rain"></i> Weather disruptions</li>
+                        <li><i data-lucide="traffic-cone"></i> Road closures</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Route result (shown after API call) -->
+            <div class="route-panel-result" id="route-panel-result" style="display:none;">
+                <div class="route-result-header">
+                    <div class="route-result-from-to">
+                        <span class="rr-from" id="rr-from">—</span>
+                        <i data-lucide="arrow-right" class="rr-arrow"></i>
+                        <span class="rr-to" id="rr-to">—</span>
+                    </div>
+                    <div class="route-result-meta">
+                        <span class="rr-meta-item" id="rr-time">
+                            <i data-lucide="clock"></i> —
+                        </span>
+                        <span class="rr-meta-item" id="rr-dist">
+                            <i data-lucide="ruler"></i> —
+                        </span>
+                    </div>
+                    <p class="rr-summary" id="rr-summary"></p>
+                </div>
+
+                <!-- Alerts along route -->
+                <div id="rr-alerts-section" style="display:none;">
+                    <h4 class="rr-section-title">
+                        <i data-lucide="triangle-alert"></i> Alerts On This Route
+                    </h4>
+                    <div id="rr-alerts-list" class="rr-alerts-list"></div>
+                </div>
+
+                <!-- Step by step -->
+                <h4 class="rr-section-title">
+                    <i data-lucide="list-ordered"></i> Route Steps
+                </h4>
+                <div id="rr-steps" class="rr-steps"></div>
+
+                <!-- Avoided roads -->
+                <div id="rr-avoided-section" style="display:none;">
+                    <h4 class="rr-section-title">
+                        <i data-lucide="shield-off"></i> Avoided Due to Disruptions
+                    </h4>
+                    <div id="rr-avoided-list" class="rr-avoided-list"></div>
+                </div>
+
+                <button class="btn-new-route" id="btn-new-route">
+                    <i data-lucide="refresh-cw"></i> Plan Another Route
+                </button>
+            </div>
+
+            <!-- Loading state -->
+            <div class="route-panel-loading" id="route-panel-loading" style="display:none;">
+                <div class="route-loading-spinner"></div>
+                <p>Calculating best route…</p>
+            </div>
+
+            <!-- Error state -->
+            <div class="route-panel-error" id="route-panel-error" style="display:none;">
+                <i data-lucide="x-circle"></i>
+                <p id="route-error-msg">Could not calculate route.</p>
+                <button class="btn-new-route" id="btn-retry-route">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map legend -->
+    <div class="map-legend" id="map-legend">
+        <div class="legend-item"><span class="legend-dot legend-route"></span> Your Route</div>
+        <div class="legend-item"><span class="legend-dot legend-incident"></span> Incident</div>
+        <div class="legend-item"><span class="legend-dot legend-event"></span> Public Event</div>
+        <div class="legend-item"><span class="legend-dot legend-weather"></span> Weather Alert</div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/citizen_map.js') }}"></script>
+{% endblock %}

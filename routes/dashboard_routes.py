@@ -88,15 +88,15 @@ MAJOR_TYPES = {
 }
 
 HOTSPOT_PROFILES = {
-    "silk board": {"keywords": ["silk", "hosur", "btm", "electronic", "hsr"], "boost": 0.45},
-    "orr": {"keywords": ["outer ring", "orr", "marathahalli", "bellandur", "ibblur"], "boost": 0.34},
-    "marathahalli": {"keywords": ["marathahalli", "kalamandir", "multiplex"], "boost": 0.28},
-    "kr puram": {"keywords": ["kr puram", "tin factory", "hanging bridge", "old madras"], "boost": 0.3},
-    "hebbal": {"keywords": ["hebbal", "mekhri", "airport"], "boost": 0.28},
-    "whitefield": {"keywords": ["whitefield", "itpl", "hope farm"], "boost": 0.25},
-    "majestic": {"keywords": ["majestic", "k g road", "mysore road"], "boost": 0.25},
-    "koramangala": {"keywords": ["koramangala", "sony world", "80 feet"], "boost": 0.2},
-    "indiranagar": {"keywords": ["indiranagar", "100 feet", "cmh"], "boost": 0.18},
+    "silk board": {"keywords": ["silk", "hosur", "btm", "electronic", "hsr"], "boost": 0.26},
+    "orr": {"keywords": ["outer ring", "orr", "marathahalli", "bellandur", "ibblur"], "boost": 0.20},
+    "marathahalli": {"keywords": ["marathahalli", "kalamandir", "multiplex"], "boost": 0.16},
+    "kr puram": {"keywords": ["kr puram", "tin factory", "hanging bridge", "old madras"], "boost": 0.17},
+    "hebbal": {"keywords": ["hebbal", "mekhri", "airport"], "boost": 0.16},
+    "whitefield": {"keywords": ["whitefield", "itpl", "hope farm"], "boost": 0.14},
+    "majestic": {"keywords": ["majestic", "k g road", "mysore road"], "boost": 0.14},
+    "koramangala": {"keywords": ["koramangala", "sony world", "80 feet"], "boost": 0.12},
+    "indiranagar": {"keywords": ["indiranagar", "100 feet", "cmh"], "boost": 0.10},
 }
 
 
@@ -182,7 +182,7 @@ def _baseline_state_for_road(road):
     jitter_seed = sum(ord(c) for c in str(road.get("edge_id", ""))) % 17
     jitter = (jitter_seed / 100.0) - 0.04
     congestion = max(current_congestion, type_floor + _hotspot_boost(road.get("road_name")) + jitter)
-    congestion = _clamp(congestion, 0.03, 0.96)
+    congestion = _clamp(congestion, 0.03, 0.64)
 
     base_speed = _safe_float(road.get("current_speed"), _safe_float(road.get("speed"), speed_limit))
     speed = max(6.0, min(speed_limit, base_speed if base_speed > 0 else speed_limit))

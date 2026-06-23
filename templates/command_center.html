@@ -1,243 +1,440 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center | Traffic Twin Bengaluru</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
 
-{% block title %}Command Center | Traffic Twin Bengaluru{% endblock %}
+<div class="cc-shell">
 
-{% block head %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-{% endblock %}
+<!-- ── HEADER ──────────────────────────────────────────────────────── -->
+<header class="cc-header">
 
-{% block content %}
-<div class="command-center-shell">
-    <aside class="ops-sidebar">
-        <div class="ops-header">
-            <div>
-                <p class="ops-kicker">Bengaluru Traffic Police</p>
-                <h1>Command Center</h1>
-            </div>
-            <div class="ops-status">
-                <span class="status-dot"></span>
-                <span>Live Monitoring</span>
-            </div>
+    <div class="cc-brand">
+        <span class="cc-brand-kicker">Bengaluru Traffic Police</span>
+        <span class="cc-brand-name">COMMAND CENTER</span>
+    </div>
+
+    <div class="cc-alert-area">
+        <div class="cc-live-wrap">
+            <span class="status-dot"></span>
+            <span class="cc-live-text">LIVE</span>
         </div>
-
-        <section class="ops-section" data-section>
-            <button class="section-toggle" type="button">
-                <span><i class="material-icons">monitor_heart</i> System Status</span>
-                <i class="material-icons">expand_less</i>
-            </button>
-            <div class="section-body">
-                <div class="status-list">
-                    <div class="status-row">
-                        <span>Traffic State</span>
-                        <strong id="metric-state">Monitoring</strong>
-                    </div>
-                    <div class="status-row">
-                        <span>Avg Speed</span>
-                        <strong id="metric-speed">-- km/h</strong>
-                    </div>
-                    <div class="status-row">
-                        <span>Congestion</span>
-                        <strong id="metric-congestion">--%</strong>
-                    </div>
-                    <div class="status-row">
-                        <span>City Flow</span>
-                        <strong id="metric-flow">--%</strong>
-                    </div>
-                    <div class="status-row">
-                        <span>Active Events</span>
-                        <strong id="metric-events">0</strong>
-                    </div>
-                    <div class="status-row">
-                        <span>Critical Roads</span>
-                        <strong id="metric-critical">--</strong>
-                    </div>
-                </div>
-        </section>
-
-        <section class="ops-section" data-section>
-            <button class="section-toggle" type="button">
-                <span><i class="material-icons">event_note</i> Event Operations</span>
-                <i class="material-icons">expand_less</i>
-            </button>
-            <div class="section-body">
-                <div class="compact-button-list">
-                    <button class="list-action active" type="button" data-event-tab="upcoming"><span><i class="material-icons">calendar_month</i> Upcoming Events</span><i class="material-icons">chevron_right</i></button>
-                    <button class="list-action" type="button" data-event-tab="reported"><span><i class="material-icons">warning_amber</i> Reported Incidents</span><i class="material-icons">chevron_right</i></button>
-                    <button class="list-action" type="button" data-event-tab="create"><span><i class="material-icons">playlist_add</i> Create Scenario</span><i class="material-icons">chevron_right</i></button>
-                </div>
-
-                <div class="event-panel active" id="event-tab-upcoming">
-                    <div id="upcoming-events-list" class="event-list"></div>
-                </div>
-                <div class="event-panel" id="event-tab-reported">
-                    <div id="reported-events-list" class="event-list"></div>
-                </div>
-                <div class="event-panel" id="event-tab-create">
-                    <div class="form-stack">
-                        <label>
-                            <span>Scenario</span>
-                            <select id="custom-scenario">
-                                <option value="concert">South India Property Expo | Palace Grounds</option>
-                                <option value="public_gathering">Bangalore Death Fest 4 | Koramangala</option>
-                                <option value="truck_breakdown">Truck Breakdown | Silk Board</option>
-                                <option value="tree_fall">Tree Fall | Indiranagar</option>
-                                <option value="water_logging">Water Logging | ORR</option>
-                            </select>
-                        </label>
-                        <button class="primary-btn" type="button" id="btn-run-custom-scenario">Simulate Scenario</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="ops-section" data-section>
-            <button class="section-toggle" type="button">
-                <span><i class="material-icons">insights</i> Simulation</span>
-                <i class="material-icons">expand_less</i>
-            </button>
-            <div class="section-body">
-                <div id="simulation-empty" class="empty-panel">Run an event to open the simulation timeline and response workflow.</div>
-                <div id="simulation-summary" class="simulation-summary hidden">
-                    <div class="summary-row"><span>Event</span><strong id="summary-event-name">--</strong></div>
-                    <div class="summary-row"><span>Impact</span><strong id="summary-impact">--</strong></div>
-                    <div class="summary-row"><span>Delay</span><strong id="summary-delay">--</strong></div>
-                    <div class="summary-row"><span>Recovery</span><strong id="summary-recovery">--</strong></div>
-                    <button class="secondary-btn" type="button" id="btn-reset-simulation">Reset City</button>
-                </div>
-            </div>
-        </section>
-
-        <section class="ops-section" data-section>
-            <button class="section-toggle" type="button">
-                <span><i class="material-icons">construction</i> Interventions</span>
-                <i class="material-icons">expand_less</i>
-            </button>
-            <div class="section-body">
-                <div class="tool-grid">
-                    <button class="tool-btn" type="button" data-tool="barricade"><i class="material-icons">block</i><span>Barricade</span></button>
-                    <button class="tool-btn" type="button" data-tool="closure"><i class="material-icons">do_not_disturb_on</i><span>Road Closure</span></button>
-                    <button class="tool-btn" type="button" data-tool="diversion"><i class="material-icons">alt_route</i><span>Diversion</span></button>
-                    <button class="tool-btn" type="button" data-tool="manpower"><i class="material-icons">groups</i><span>Police Deploy</span></button>
-                </div>
-                <div id="tool-status" class="tool-status">Select a simulated road corridor, then choose a tool.</div>
-                <div id="tool-config" class="tool-config hidden"></div>
-                <div class="active-actions">
-                    <div class="active-actions-header">
-                        <span>Active Actions</span>
-                        <button class="text-btn" type="button" id="btn-clear-actions">Clear</button>
-                    </div>
-                    <div id="active-actions-list" class="action-list empty">No active interventions</div>
-                    <button class="primary-btn" type="button" id="btn-update-simulation" style="width: 100%; margin-top: 12px;">Update Simulation</button>
-                </div>
-            </div>
-        </section>
-
-        <section class="ops-section hidden" id="suggestions-section" data-section>
-            <button class="section-toggle" type="button">
-                <span><i class="material-icons">assignment_turned_in</i> Suggested Response Plan</span>
-                <i class="material-icons">expand_less</i>
-            </button>
-            <div class="section-body">
-                <div class="status-list suggestion-summary">
-                    <div class="status-row">
-                        <span>Severity</span>
-                        <strong id="suggestion-severity">--</strong>
-                    </div>
-                    <div class="status-row">
-                        <span>Expected Duration</span>
-                        <strong id="suggestion-duration">--</strong>
-                    </div>
-                </div>
-                <div class="plan-band">
-                    <div>
-                        <span>Without action</span>
-                        <strong id="without-action-time">--</strong>
-                    </div>
-                    <div>
-                        <span>With plan</span>
-                        <strong id="with-plan-time">--</strong>
-                    </div>
-                </div>
-                <div id="suggestions-list" class="suggestion-list"></div>
-                <div id="plan-effect" class="plan-effect hidden"></div>
-            </div>
-        </section>
-
-        <section class="ops-section" data-section>
-            <button class="section-toggle" type="button">
-                <span><i class="material-icons">pin_drop</i> Corridor Inspector</span>
-                <i class="material-icons">expand_less</i>
-            </button>
-            <div class="section-body">
-                <div id="selected-road-card" class="selected-road-card empty-panel">
-                    Click a road corridor on the map to inspect live flow and target interventions.
-                </div>
-            </div>
-        </section>
-    </aside>
-
-    <section class="map-stage">
-        <div class="map-top-strip">
-            <div class="live-badge"><span class="status-dot"></span> Live Traffic Monitor</div>
-            <div class="map-tip" id="map-tip">Operational road network loaded. Select an event to analyze traffic impact.</div>
-        </div>
-        <div id="leaflet-map" class="map-container"></div>
-        
-        <!-- Live Stats Box overlay on map -->
-        <div class="map-live-stats-box hidden" id="map-live-stats-box">
-            <div class="stats-box-header">Live Simulation Stats</div>
-            <div class="stats-box-body">
-                <div class="stat-row">
-                    <span class="stat-label">Avg Speed:</span>
-                    <strong id="live-stat-speed">--</strong>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Avg Congestion:</span>
-                    <strong id="live-stat-congestion">--</strong>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Critical Corridors:</span>
-                    <strong id="live-stat-critical">--</strong>
-                </div>
-            </div>
-        </div>
-
-        <button class="back-button" type="button" onclick="window.location.href='{{ url_for('index') }}'">
-            <i class="material-icons">arrow_back</i>
+        <button class="cc-alert-chip alert-green" id="alert-level-chip" onclick="cycleAlertLevel()" title="Click to cycle alert level">
+            <i class="material-icons" id="alert-icon">shield</i>
+            <span id="alert-level-text">NORMAL</span>
         </button>
+    </div>
 
-        <div class="timeline-panel" id="timeline-panel">
-            <div class="timeline-controls">
-                <button class="btn-play-pause" id="btn-play" title="Play simulation">
-                    <i data-lucide="play"></i>
+    <div class="cc-metric-strip">
+        <div class="cc-metric">
+            <span class="cc-metric-label">TRAFFIC STATE</span>
+            <strong class="cc-metric-val" id="metric-state">Monitoring</strong>
+        </div>
+        <div class="cc-metric-sep"></div>
+        <div class="cc-metric">
+            <span class="cc-metric-label">AVG SPEED</span>
+            <strong class="cc-metric-val" id="metric-speed">-- km/h</strong>
+        </div>
+        <div class="cc-metric-sep"></div>
+        <div class="cc-metric">
+            <span class="cc-metric-label">CONGESTION</span>
+            <strong class="cc-metric-val" id="metric-congestion">--%</strong>
+        </div>
+        <div class="cc-metric-sep"></div>
+        <div class="cc-metric">
+            <span class="cc-metric-label">CITY FLOW</span>
+            <strong class="cc-metric-val" id="metric-flow">--%</strong>
+        </div>
+        <div class="cc-metric-sep"></div>
+        <div class="cc-metric">
+            <span class="cc-metric-label">EVENTS</span>
+            <strong class="cc-metric-val" id="metric-events">0</strong>
+        </div>
+        <div class="cc-metric-sep"></div>
+        <div class="cc-metric">
+            <span class="cc-metric-label">CRITICAL</span>
+            <strong class="cc-metric-val" id="metric-critical">--</strong>
+        </div>
+    </div>
+
+    <div class="cc-hdr-stats">
+        <div class="cc-hstat"><strong>24</strong><span>Cameras</span></div>
+        <div class="cc-hstat-sep"></div>
+        <div class="cc-hstat"><strong>20</strong><span>Units</span></div>
+        <div class="cc-hstat-sep"></div>
+        <div class="cc-hstat"><strong>8</strong><span>Resolved</span></div>
+    </div>
+
+    <div class="cc-header-right">
+        <span class="cc-clock" id="cc-clock">--:--:--</span>
+        <a href="{{ url_for('index') }}" class="cc-back-btn" title="Back to home">
+            <i class="material-icons">arrow_back</i>
+        </a>
+    </div>
+
+</header>
+
+<!-- ── LEFT PANEL ──────────────────────────────────────────────────── -->
+<aside class="cc-left">
+
+    <!-- ─── Section 1: City Overview ─────────────────────────────── -->
+    <div class="gis-section" id="sec-city-overview">
+        <div class="gis-section-hdr">
+            <i class="material-icons">location_city</i>
+            <span class="gis-section-title">City Overview</span>
+            <span class="cc-dot-live" style="margin-left:auto;"></span>
+        </div>
+        <div class="gis-section-body">
+            <div class="cs-stat-row"><span class="cs-stat-label">Active Events</span><span class="cs-stat-val" id="cs-active-events">—</span></div>
+            <div class="cs-stat-row"><span class="cs-stat-label">Avg Congestion</span><span class="cs-stat-val" id="cs-avg-congestion">—</span></div>
+            <div class="cs-stat-row"><span class="cs-stat-label">Critical Roads</span><span class="cs-stat-val" id="cs-critical-roads">—</span></div>
+            <div class="cs-stat-row"><span class="cs-stat-label">Officers Req.</span><span class="cs-stat-val" id="cs-officers">—</span></div>
+            <div class="cs-stat-row"><span class="cs-stat-label">Recovery Est.</span><span class="cs-stat-val" id="cs-recovery">—</span></div>
+        </div>
+    </div>
+
+    <!-- ─── Section 2: Events (tabbed Active / Upcoming) ──────────── -->
+    <div class="gis-section gis-section-grow" id="sec-active-events">
+        <div class="gis-section-hdr evt-hdr">
+            <button class="evt-tab active" id="tab-active"   onclick="switchEventTab('ACTIVE')">Active <span id="tab-active-count">0</span></button>
+            <button class="evt-tab"        id="tab-upcoming" onclick="switchEventTab('UPCOMING')">Upcoming <span id="tab-upcoming-count">0</span></button>
+            <div style="flex:1"></div>
+            <button class="evt-add-btn" id="btn-add-event" onclick="toggleAddEventForm()" title="Add Event">
+                <i class="material-icons">add</i>
+            </button>
+        </div>
+        <!-- Inline incident report form (Step 1: type + location, Step 2: confirm) -->
+        <div class="add-event-form" id="add-event-form" style="display:none;">
+            <!-- Step 1: pick type + click map -->
+            <div id="incident-step-1">
+                <select class="evt-input" id="evt-input-type">
+                    <option value="Accident">Accident</option>
+                    <option value="Vehicle Breakdown">Vehicle Breakdown</option>
+                    <option value="Tree Fall">Tree Fall</option>
+                    <option value="Water Logging">Water Logging / Flooding</option>
+                    <option value="Road Construction">Road Construction</option>
+                    <option value="Debris on Road">Road Blockage / Debris</option>
+                    <option value="Protest">Protest / Gathering</option>
+                    <option value="Others">Other Incident</option>
+                </select>
+                <select class="evt-input" id="evt-input-severity">
+                    <option value="LOW">Low severity</option>
+                    <option value="MEDIUM" selected>Medium severity</option>
+                    <option value="HIGH">High severity</option>
+                </select>
+                <button class="evt-map-pin-btn" id="btn-pin-location" onclick="startIncidentLocationPick()">
+                    <i class="material-icons">place</i> Click map to pin location
                 </button>
-                <div class="slider-wrapper">
-                    <input type="range" id="timeline-slider" min="0" max="120" step="15" value="0">
-                    <div class="timeline-ticks">
-                        <span class="tick-label active" data-val="0">0 min</span>
-                        <span class="tick-label" data-val="15">15</span>
-                        <span class="tick-label" data-val="30">30</span>
-                        <span class="tick-label" data-val="45">45</span>
-                        <span class="tick-label" data-val="60">60</span>
-                        <span class="tick-label" data-val="120">120</span>
-                    </div>
-                </div>
-                <div class="simulation-time-display">
-                    <span id="current-sim-time">T + 0 min</span>
+                <div class="evt-location-preview" id="evt-location-preview" style="display:none;">
+                    <i class="material-icons" style="font-size:11px;color:#22c55e;">check_circle</i>
+                    <span id="evt-location-text">Location selected</span>
                 </div>
             </div>
+            <!-- Step 2: confirm (shown after map click) -->
+            <div id="incident-step-2" style="display:none;">
+                <input class="evt-input" id="evt-input-desc" placeholder="Description (optional)" />
+                <div class="evt-form-actions">
+                    <button class="evt-form-submit" onclick="submitAddEvent()">Report Incident</button>
+                    <button class="evt-form-cancel" onclick="cancelIncidentPick()">Cancel</button>
+                </div>
+            </div>
+            <div style="display:none;">
+                <button class="evt-form-cancel" id="evt-cancel-step1" onclick="toggleAddEventForm()">Cancel</button>
+            </div>
+            <!-- visible cancel only in step 1 -->
+            <button class="evt-form-cancel" style="margin-top:4px;" onclick="toggleAddEventForm()">✕ Cancel</button>
         </div>
-    </section>
-</div>
-{% endblock %}
+        <div class="gis-section-scroll">
+            <div class="gis-event-list" id="gis-event-list">
+                <div class="gis-loading">Loading events...</div>
+            </div>
+        </div>
+    </div>
 
-{% block scripts %}
+    <!-- ─── Section 3: Simulation Control ───────────────────────── -->
+    <div class="gis-section" id="sec-sim-control">
+        <div class="gis-section-hdr">
+            <i class="material-icons">analytics</i>
+            <span class="gis-section-title">Simulation</span>
+        </div>
+        <div class="gis-section-body">
+            <div class="gis-selected-count" id="gis-selected-count">Select events above</div>
+            <button class="gis-run-btn" id="btn-run-city-sim" onclick="runCitySimulation()" disabled>
+                <i class="material-icons">play_circle</i>
+                Run City Simulation
+            </button>
+            <button class="gis-reset-btn" id="btn-reset-city-sim" onclick="resetCitySimulation()" style="display:none;">
+                <i class="material-icons">restart_alt</i>
+                Reset Simulation
+            </button>
+            <div class="gis-sim-status" id="gis-sim-status"></div>
+        </div>
+    </div>
+
+    <!-- ─── Section 4: Response Actions ─────────────────────────── -->
+    <div class="gis-section" id="sec-response-actions">
+        <div class="gis-section-hdr">
+            <i class="material-icons">build</i>
+            <span class="gis-section-title">Response Actions</span>
+        </div>
+        <div class="gis-section-body">
+            <div class="intv-toolbar">
+                <button class="intv-tool" data-tool="manpower" title="Deploy Officers">
+                    <i class="material-icons">groups</i><span>Officers</span>
+                </button>
+                <button class="intv-tool" data-tool="barricade" title="Set Barricade">
+                    <i class="material-icons">block</i><span>Barricade</span>
+                </button>
+                <button class="intv-tool" data-tool="closure" title="Road Closure">
+                    <i class="material-icons">do_not_disturb_on</i><span>Closure</span>
+                </button>
+                <button class="intv-tool" data-tool="diversion" title="Diversion Route">
+                    <i class="material-icons">alt_route</i><span>Diversion</span>
+                </button>
+            </div>
+            <div class="intv-mode-hint" id="intv-mode-hint">Click map to place selected tool</div>
+            <div class="action-history" id="action-history"></div>
+        </div>
+    </div>
+
+    <!-- ─── Section 5: Results (shown after simulation) ──────────── -->
+    <div class="gis-section gis-section-hidden" id="sec-results">
+        <div class="gis-section-hdr">
+            <i class="material-icons">bar_chart</i>
+            <span class="gis-section-title">Results</span>
+        </div>
+        <div class="gis-section-body">
+            <div class="gis-subsection-label">IMPACT RANKING</div>
+            <div class="event-impact-list" id="event-impact-list"></div>
+            <div class="gis-subsection-label" style="margin-top:10px;">RESPONSE PLAN</div>
+            <div class="response-plan-summary" id="response-plan-summary"></div>
+        </div>
+    </div>
+
+</aside>
+
+<!-- ── CENTER MAP ───────────────────────────────────────────────────── -->
+<section class="cc-map-area">
+
+    <div class="cc-map-topbar">
+        <div class="cc-live-badge">
+            <span class="status-dot"></span>
+            Live Traffic Monitor &nbsp;·&nbsp; Bengaluru
+        </div>
+        <div class="cc-map-tip" id="map-tip">
+            Operational road network loaded. Select an event to analyze traffic impact.
+        </div>
+    </div>
+
+    <div id="leaflet-map" class="cc-map"></div>
+
+    <div class="cc-emergency-banner hidden" id="emergency-banner">
+        <i class="material-icons" style="animation:blink-icon 0.7s step-end infinite;">notification_important</i>
+        <strong id="emergency-banner-text">EMERGENCY ALERT ACTIVE</strong>
+        <button class="cc-banner-dismiss" type="button" onclick="dismissAlertBanner()">Dismiss</button>
+    </div>
+
+    <div class="dispatch-toast" id="dispatch-toast"></div>
+
+    <div class="map-live-stats-box hidden" id="map-live-stats-box">
+        <div class="stats-box-header">SIMULATION</div>
+        <div class="stats-box-body">
+            <div class="stat-row"><span class="stat-label">Avg Speed</span><strong id="live-stat-speed">--</strong></div>
+            <div class="stat-row"><span class="stat-label">Congestion</span><strong id="live-stat-congestion">--</strong></div>
+            <div class="stat-row"><span class="stat-label">Critical</span><strong id="live-stat-critical">--</strong></div>
+        </div>
+    </div>
+
+    <div class="timeline-panel" id="timeline-panel">
+        <div class="timeline-controls">
+            <button class="btn-play-pause" id="btn-play" type="button" title="Play simulation">
+                <i data-lucide="play"></i>
+            </button>
+            <div class="slider-wrapper">
+                <input type="range" id="timeline-slider" min="0" max="3" step="1" value="0">
+                <div class="timeline-ticks" id="timeline-ticks">
+                    <span class="tick-label active" data-val="0">Current</span>
+                    <span class="tick-label" data-val="1">+30 min</span>
+                    <span class="tick-label" data-val="2">+1 hr</span>
+                    <span class="tick-label" data-val="3">Recovery</span>
+                </div>
+            </div>
+            <div class="simulation-time-display">
+                <span id="current-sim-time">T + 0 min</span>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<!-- ── RIGHT PANEL ─────────────────────────────────────────────────── -->
+<aside class="cc-right">
+
+    <div class="rp-tab-bar">
+        <button class="rp-tab active" type="button" data-pane="analysis" title="Impact Analysis"><i class="material-icons">insights</i></button>
+        <button class="rp-tab" type="button" data-pane="response" title="Response Plan"><i class="material-icons">assignment_turned_in</i></button>
+        <button class="rp-tab" type="button" data-pane="units" title="Field Units"><i class="material-icons">local_police</i></button>
+        <button class="rp-tab" type="button" data-pane="tools" title="Intervention Tools"><i class="material-icons">build</i></button>
+        <button class="rp-tab" type="button" data-pane="inspector" title="Road Inspector"><i class="material-icons">pin_drop</i></button>
+    </div>
+    <div class="rp-tab-label-bar" id="rp-tab-label-bar">ANALYSIS</div>
+
+    <!-- Analysis -->
+    <div class="rp-pane active" id="rp-analysis">
+        <div id="simulation-empty" class="rp-empty-msg">
+            Select an event from the queue and run impact simulation to see ML predictions.
+        </div>
+        <div id="sim-city-loading" class="hidden sim-city-loading">
+            <div class="sim-city-spinner"></div>
+            <p class="sim-city-loading-text">Simulating city traffic…</p>
+        </div>
+        <div id="simulation-results" class="hidden">
+            <div class="rp-section-label">ML IMPACT PREDICTION</div>
+            <div class="ml-metrics-grid">
+                <div class="ml-metric-tile"><span class="tile-label">Impact Score</span><strong class="tile-val" id="ml-impact">—</strong></div>
+                <div class="ml-metric-tile"><span class="tile-label">Severity</span><strong class="tile-val" id="ml-severity">—</strong></div>
+                <div class="ml-metric-tile"><span class="tile-label">Clearance</span><strong class="tile-val" id="ml-clearance">—</strong></div>
+                <div class="ml-metric-tile"><span class="tile-label">Officers Req.</span><strong class="tile-val" id="ml-manpower">—</strong></div>
+            </div>
+            <div class="ml-flag-row">
+                <div class="ml-flag flag-not-required" id="flag-barricade">
+                    <i class="material-icons">safety_divider</i><span>Barricade</span><strong id="flag-barricade-val">—</strong>
+                </div>
+                <div class="ml-flag flag-not-required" id="flag-closure">
+                    <i class="material-icons">block</i><span>Closure</span><strong id="flag-closure-val">—</strong>
+                </div>
+                <div class="ml-flag flag-not-required" id="flag-diversion">
+                    <i class="material-icons">alt_route</i><span>Diversion</span><strong id="flag-diversion-val">—</strong>
+                </div>
+            </div>
+            <div class="rp-section-label" style="margin-top:14px;">TIMELINE PHASES</div>
+            <div id="timeline-phase-list" class="timeline-phase-list"></div>
+            <button class="cc-secondary-btn" type="button" id="btn-reset-simulation" style="margin-top:12px;width:100%;">
+                <i class="material-icons" style="font-size:14px;vertical-align:middle;">refresh</i> Reset City
+            </button>
+        </div>
+    </div>
+
+    <!-- Response -->
+    <div class="rp-pane" id="rp-response">
+        <div id="rp-response-empty" class="rp-empty-msg">
+            Run simulation to generate ML-based response recommendations.
+        </div>
+        <div id="rp-response-content" class="hidden">
+            <div class="rp-section-label">RECOVERY ESTIMATE</div>
+            <div class="plan-comparison">
+                <div><span>Without action</span><strong id="without-action-time">—</strong></div>
+                <span class="comparison-arrow">→</span>
+                <div><span>With plan</span><strong id="with-plan-time">—</strong></div>
+            </div>
+            <div class="rp-section-label" style="margin-top:14px;">RECOMMENDED ACTIONS</div>
+            <div id="suggestions-list" class="suggestion-list"></div>
+            <button class="cc-primary-btn" type="button" id="btn-apply-plan" style="margin-top:12px;width:100%;">Apply Response Plan</button>
+            <div id="plan-effect" class="plan-effect hidden" style="margin-top:8px;"></div>
+        </div>
+    </div>
+
+    <!-- Units -->
+    <div class="rp-pane" id="rp-units">
+        <div class="rp-section-label">DEPLOYMENT STATUS</div>
+        <div class="udeploy-grid">
+            <div class="udeploy-cell"><strong class="udeploy-val" style="color:#22c55e;">12</strong><span class="udeploy-label">Available</span></div>
+            <div class="udeploy-cell"><strong class="udeploy-val" style="color:#f59e0b;">8</strong><span class="udeploy-label">Deployed</span></div>
+            <div class="udeploy-cell"><strong class="udeploy-val" style="color:#ef4444;">4</strong><span class="udeploy-label">On Scene</span></div>
+            <div class="udeploy-cell"><strong class="udeploy-val" style="color:#4a6880;">3</strong><span class="udeploy-label">Off Duty</span></div>
+        </div>
+        <div class="rp-section-label" style="margin-top:14px;">ACTIVE UNITS</div>
+        <div class="unit-roster">
+            <div class="ur-row"><span class="ur-id">PCR-47</span><div class="ur-body"><span class="ur-route">MG Rd → Brigade Rd</span><span class="ur-dist">2.1 km</span></div><span class="ur-badge badge-transit">Transit</span></div>
+            <div class="ur-row"><span class="ur-id">PCR-12</span><div class="ur-body"><span class="ur-route">Silk Board Flyover</span><span class="ur-dist">On site</span></div><span class="ur-badge badge-scene">Scene</span></div>
+            <div class="ur-row"><span class="ur-id">AMB-04</span><div class="ur-body"><span class="ur-route">Indiranagar → City Gen</span><span class="ur-dist">4.8 km</span></div><span class="ur-badge badge-dispatch">Dispatch</span></div>
+            <div class="ur-row"><span class="ur-id">PCR-23</span><div class="ur-body"><span class="ur-route">Koramangala Depot</span><span class="ur-dist">Standby</span></div><span class="ur-badge badge-available">Ready</span></div>
+            <div class="ur-row"><span class="ur-id">PCR-08</span><div class="ur-body"><span class="ur-route">HSR Layout — Returning</span><span class="ur-dist">1.2 km</span></div><span class="ur-badge badge-transit">Return</span></div>
+            <div class="ur-row"><span class="ur-id">FIR-02</span><div class="ur-body"><span class="ur-route">Rajajinagar Station</span><span class="ur-dist">Standby</span></div><span class="ur-badge badge-available">Ready</span></div>
+        </div>
+        <div class="rp-section-label" style="margin-top:14px;">DISPATCH LOG</div>
+        <div class="dispatch-log-list">
+            <div class="dlog-entry"><span class="dlog-time">18:42</span><div class="dlog-body"><span class="dlog-tag dlog-ambulance">AMBULANCE</span><span class="dlog-detail">City General Hospital → AMB-04</span></div></div>
+            <div class="dlog-entry"><span class="dlog-time">18:31</span><div class="dlog-body"><span class="dlog-tag dlog-roadblock">ROADBLOCK</span><span class="dlog-detail">Silk Board Flyover → PCR-12, PCR-35</span></div></div>
+            <div class="dlog-entry"><span class="dlog-time">18:15</span><div class="dlog-body"><span class="dlog-tag dlog-advisory">ADVISORY</span><span class="dlog-detail">ORR Flooding — All units notified</span></div></div>
+            <div class="dlog-entry"><span class="dlog-time">17:58</span><div class="dlog-body"><span class="dlog-tag dlog-vip">VIP ESCORT</span><span class="dlog-detail">HAL Airport → Raj Bhavan · PCR-05</span></div></div>
+        </div>
+        <div class="rp-section-label" style="margin-top:14px;">RADIO CHANNELS</div>
+        <div class="radio-channels">
+            <div class="radio-ch"><span class="comms-dot comms-dot-on"></span><div class="radio-ch-info"><span class="radio-ch-name">CH-01 Traffic Control</span><span class="radio-ch-sub">4 units · Active</span></div><div class="radio-bars"><div class="rb rb-4"></div><div class="rb rb-3"></div><div class="rb rb-4"></div><div class="rb rb-2"></div></div></div>
+            <div class="radio-ch"><span class="comms-dot comms-dot-on"></span><div class="radio-ch-info"><span class="radio-ch-name">CH-02 Emergency</span><span class="radio-ch-sub">2 units · Active</span></div><div class="radio-bars"><div class="rb rb-4"></div><div class="rb rb-4"></div><div class="rb rb-3"></div><div class="rb rb-1"></div></div></div>
+            <div class="radio-ch"><span class="comms-dot"></span><div class="radio-ch-info"><span class="radio-ch-name">CH-03 Admin</span><span class="radio-ch-sub">Standby</span></div><div class="radio-bars"><div class="rb rb-1"></div><div class="rb rb-1"></div><div class="rb rb-1"></div><div class="rb rb-1"></div></div></div>
+        </div>
+    </div>
+
+    <!-- Tools -->
+    <div class="rp-pane" id="rp-tools">
+        <div class="rp-section-label">INTERVENTION TOOLS</div>
+        <div class="tool-grid">
+            <button class="tool-btn" type="button" data-tool="barricade"><i class="material-icons">block</i><span>Barricade</span></button>
+            <button class="tool-btn" type="button" data-tool="closure"><i class="material-icons">do_not_disturb_on</i><span>Closure</span></button>
+            <button class="tool-btn" type="button" data-tool="diversion"><i class="material-icons">alt_route</i><span>Diversion</span></button>
+            <button class="tool-btn" type="button" data-tool="manpower"><i class="material-icons">groups</i><span>Police</span></button>
+        </div>
+        <div id="tool-status" class="tool-status">Select a road corridor on the map, then choose a tool.</div>
+        <div id="tool-config" class="tool-config hidden"></div>
+        <div class="rp-section-label" style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">
+            ACTIVE INTERVENTIONS
+            <button class="cc-text-btn" type="button" id="btn-clear-actions">Clear All</button>
+        </div>
+        <div id="active-actions-list" class="action-list empty">No active interventions</div>
+        <button class="cc-secondary-btn" type="button" id="btn-update-simulation" style="margin-top:10px;width:100%;">Update Simulation</button>
+    </div>
+
+    <!-- Inspector -->
+    <div class="rp-pane" id="rp-inspector">
+        <div class="rp-section-label">ROAD CORRIDOR</div>
+        <div id="selected-road-card" class="rp-empty-msg">
+            Click a road corridor on the map to inspect live flow data.
+        </div>
+    </div>
+
+</aside>
+
+<!-- ── DISPATCH CONSOLE ─────────────────────────────────────────────── -->
+<div class="cc-action-bar">
+    <div class="cc-action-bar-label">DISPATCH<br>CONSOLE</div>
+    <div class="cc-dispatch-btns">
+        <button class="dispatch-btn db-emergency" type="button" data-action="emergency" data-label="EMERGENCY ALERT ACTIVE"><i class="material-icons">notification_important</i><span>EMERGENCY</span></button>
+        <button class="dispatch-btn db-ambulance" type="button" data-action="ambulance" data-label="Ambulance dispatched"><i class="material-icons">local_hospital</i><span>AMBULANCE</span></button>
+        <button class="dispatch-btn db-fire" type="button" data-action="fire" data-label="Fire Brigade alerted"><i class="material-icons">local_fire_department</i><span>FIRE BRIGADE</span></button>
+        <button class="dispatch-btn db-vip" type="button" data-action="vip" data-label="VIP Escort active"><i class="material-icons">shield</i><span>VIP ESCORT</span></button>
+        <button class="dispatch-btn db-traffic" type="button" data-action="traffic" data-label="Traffic diversion active"><i class="material-icons">traffic</i><span>TRAFFIC DIV.</span></button>
+        <button class="dispatch-btn db-roadblock" type="button" data-action="roadblock" data-label="Roadblock deployed"><i class="material-icons">do_not_disturb_on</i><span>ROADBLOCK</span></button>
+        <button class="dispatch-btn db-advisory" type="button" data-action="advisory" data-label="Public advisory broadcast"><i class="material-icons">campaign</i><span>ADVISORY</span></button>
+        <button class="dispatch-btn db-allclear" type="button" data-action="allclear" data-label="All Clear issued"><i class="material-icons">check_circle</i><span>ALL CLEAR</span></button>
+    </div>
+    <div class="cc-action-bar-stats">
+        <div class="abstat"><strong class="abstat-val">4.2<small>min</small></strong><span class="abstat-label">Avg Response</span></div>
+        <div class="abstat-sep"></div>
+        <div class="abstat"><strong class="abstat-val">8</strong><span class="abstat-label">Resolved Today</span></div>
+    </div>
+</div>
+
+</div><!-- /.cc-shell -->
+
+<script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="{{ url_for('static', filename='js/traffic_particles.js') }}"></script>
 <script src="{{ url_for('static', filename='js/event_animation.js') }}"></script>
 <script src="{{ url_for('static', filename='js/timeline.js') }}"></script>
 <script src="{{ url_for('static', filename='js/map_engine.js') }}"></script>
 <script src="{{ url_for('static', filename='js/command_center.js') }}"></script>
-{% endblock %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+</script>
+</body>
+</html>

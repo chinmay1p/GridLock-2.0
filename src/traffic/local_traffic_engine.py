@@ -65,9 +65,11 @@ class LocalTrafficEngine:
             }
 
         jitter = self._get_deterministic_jitter(edge_id, hour, day_type)
-        
-        congestion = max(0.02, min(0.98, row["congestion_score"] * (1.0 + jitter)))
-        density = max(0.02, min(0.98, row["traffic_density"] * (1.0 + jitter)))
+
+        # Scale congestion to 82% of dataset values so peak-hour normal traffic
+        # stays below the 0.70 red threshold — events push it above that.
+        congestion = max(0.02, min(0.64, row["congestion_score"] * 0.82 * (1.0 + jitter)))
+        density = max(0.02, min(0.64, row["traffic_density"] * 0.82 * (1.0 + jitter)))
         speed = max(5.0, min(row["normal_speed"], row["expected_speed"] * (1.0 - jitter * 0.5)))
         
         if congestion < 0.35:

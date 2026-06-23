@@ -155,8 +155,11 @@ class TrafficParticleSystem {
 
     update(dt) {
         const delta = Math.min(dt, 0.1);
-        
+
         this.particles.forEach(p => {
+            // Road closed — freeze particle in place (will be invisible in draw)
+            if (p.road.congestion_score < 0.05) return;
+
             let activeSpeed = p.speed;
 
             if (typeof signalCoordinator !== 'undefined' && signalCoordinator && signalCoordinator.signals) {
@@ -209,9 +212,12 @@ class TrafficParticleSystem {
         const timeNow = performance.now();
         
         this.particles.forEach(p => {
+            // Road closed — don't draw any particle
+            if (p.road.congestion_score < 0.05) return;
+
             const geom = p.road.geometry;
             if (!geom || geom.length < 2) return;
-            
+
             const pt = this.getPositionAlongLine(geom, p.progress);
             if (!pt) return;
             

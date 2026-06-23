@@ -10,9 +10,20 @@ source_code
 # Ignore all folder contents
 data/*
 outputs/*
-
+gridlock2.0.pdf
 # Keep deployment-essential files
 !data/command_center_roads.csv
 !data/major_junctions.csv
 !data/road_search_index.json
 !outputs/timeline.json
+
+# Runtime database files
+traffic_twin.db
+traffic_twin.db-shm
+traffic_twin.db-wal
+
+# Notebooks
+notebooks/
+
+# Temporary analysis files
+tmp_analysis.txt

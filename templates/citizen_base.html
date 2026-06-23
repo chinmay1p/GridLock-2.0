@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}User Dashboard — Traffic Twin Bengaluru{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Shared styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/citizen.css') }}">
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Citizen Navbar -->
+    <nav class="citizen-navbar" id="citizen-nav">
+        <div class="citizen-nav-inner">
+            <!-- Brand -->
+            <a href="{{ url_for('index') }}" class="citizen-nav-brand">
+                <span class="logo-circle"></span>
+                <span class="citizen-nav-brand-text">
+                    User Dashboard
+                    <span class="citizen-nav-brand-sub">Traffic Twin Bengaluru</span>
+                </span>
+            </a>
+
+            <!-- 3 navigation buttons -->
+            <div class="citizen-nav-links">
+                <a href="{{ url_for('index') }}"
+                   class="citizen-nav-link {% if request.path == '/' %}active{% endif %}">
+                    <i data-lucide="house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="{{ url_for('citizen_dashboard') }}"
+                   class="citizen-nav-link {% if request.path == '/citizen' %}active{% endif %}">
+                    <i data-lucide="radio-tower"></i>
+                    <span>Live Traffic</span>
+                </a>
+                <a href="{{ url_for('citizen_map') }}"
+                   class="citizen-nav-link {% if request.path == '/citizen/map' %}active{% endif %}">
+                    <i data-lucide="map"></i>
+                    <span>Route Planner</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

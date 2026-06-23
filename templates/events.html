@@ -8,245 +8,309 @@
 
 {% block content %}
 <div class="events-page-wrapper">
+
     <!-- Hero Header -->
     <header class="events-hero">
         <div class="container">
             <h1>Traffic Event Monitor</h1>
-            <p>Monitor upcoming public events and reported incidents that may influence Bengaluru traffic conditions.</p>
-            
-            <!-- Summary cards -->
+            <p>Monitor upcoming public events and reported incidents affecting Bengaluru's road network.</p>
+
             <div class="summary-cards-container">
                 <div class="summary-card">
-                    <span class="summary-val">3</span>
-                    <span class="summary-label">Upcoming Events</span>
+                    <span class="summary-val" id="summary-public">—</span>
+                    <span class="summary-label">Public Events</span>
                 </div>
                 <div class="summary-card">
-                    <span class="summary-val">3</span>
-                    <span class="summary-label">User Reports</span>
+                    <span class="summary-val" id="summary-incidents">—</span>
+                    <span class="summary-label">Reported Incidents</span>
                 </div>
                 <div class="summary-card">
-                    <span class="summary-val highlight-red">2</span>
-                    <span class="summary-label">High Priority</span>
+                    <span class="summary-val highlight-red" id="summary-high">—</span>
+                    <span class="summary-label">High Severity</span>
+                </div>
+                <div class="summary-card weather-summary-card">
+                    <span class="summary-val highlight-weather" id="summary-weather">—</span>
+                    <span class="summary-label">Weather Alerts</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Controls (Search + Filters) -->
+    <!-- Controls: Search + Filters + Action Buttons -->
     <section class="events-controls">
         <div class="container">
             <div class="controls-wrapper">
                 <div class="search-box-wrapper">
                     <i data-lucide="search" class="search-icon"></i>
-                    <input type="text" id="event-search" placeholder="Search events or locations...">
+                    <input type="text" id="event-search" placeholder="Search events, locations, types...">
                 </div>
                 <div class="filter-actions-wrapper">
                     <div class="filter-buttons">
                         <button class="filter-btn active" data-filter="all">All</button>
-                        <button class="filter-btn" data-filter="high">High Priority</button>
+                        <button class="filter-btn" data-filter="high">High Severity</button>
                         <button class="filter-btn" data-filter="public">Public Events</button>
-                        <button class="filter-btn" data-filter="reports">Reports</button>
+                        <button class="filter-btn" data-filter="incidents">Incidents</button>
+                        <button class="filter-btn weather-filter-btn" data-filter="weather">
+                            <i data-lucide="cloud-rain"></i> Weather Alerts
+                        </button>
                     </div>
-                    <button class="add-event-btn"><i data-lucide="plus"></i> Add Event</button>
+                    <div class="action-buttons">
+                        <button class="add-event-btn" id="btn-open-event-modal">
+                            <i data-lucide="plus"></i> Add Event
+                        </button>
+                        <button class="report-incident-btn" id="btn-open-incident-modal">
+                            <i data-lucide="alert-triangle"></i> Report Incident
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Main Content Layout -->
+    <!-- Main Two-Column Layout -->
     <section class="events-main-section">
         <div class="container">
             <div class="events-grid-layout">
-                <!-- Left: Upcoming Public Events -->
+
+                <!-- Left column: Public Events -->
                 <div class="events-column" id="public-events-col">
-                    <h2 class="column-title"><i data-lucide="calendar" class="col-icon"></i> Upcoming Public Events</h2>
-                    <div class="cards-list">
-                        <!-- Card 1 -->
-                        <div class="event-card public-event-type" data-priority="high">
-                            <div class="card-header">
-                                <span class="badge badge-high">High Priority</span>
-                            </div>
-                            <h3 class="card-title">IPL Match</h3>
-                            <div class="card-meta">
-                                <div class="meta-item"><i data-lucide="map-pin"></i> <span>M. Chinnaswamy Stadium</span></div>
-                                <div class="meta-item"><i data-lucide="calendar-days"></i> <span>Today</span></div>
-                                <div class="meta-item"><i data-lucide="clock"></i> <span>6:30 PM - 11:30 PM</span></div>
-                                <div class="meta-item"><i data-lucide="users"></i> <span>Expected Crowd: 35,000</span></div>
-                            </div>
-                            <p class="card-desc">IPL match starting, huge traffic jam building up near MG road stadium gates.</p>
-                            <div class="card-actions">
-                                <button class="btn-card btn-accept"><i data-lucide="check"></i> Accept</button>
-                                <button class="btn-card btn-decline"><i data-lucide="x"></i> Decline</button>
-                            </div>
-                        </div>
-
-                        <!-- Card 2 -->
-                        <div class="event-card public-event-type" data-priority="medium">
-                            <div class="card-header">
-                                <span class="badge badge-medium">Medium Priority</span>
-                            </div>
-                            <h3 class="card-title">South India Property Expo</h3>
-                            <div class="card-meta">
-                                <div class="meta-item"><i data-lucide="map-pin"></i> <span>Palace Grounds (Tripura Vasini)</span></div>
-                                <div class="meta-item"><i data-lucide="clock"></i> <span>11:00 AM - 8:00 PM</span></div>
-                                <div class="meta-item"><i data-lucide="users"></i> <span>Expected Crowd: 15,000</span></div>
-                            </div>
-                            <p class="card-desc">Palace grounds expo has lots of cars blocking Bellary road entrance.</p>
-                            <div class="card-actions">
-                                <button class="btn-card btn-accept"><i data-lucide="check"></i> Accept</button>
-                                <button class="btn-card btn-decline"><i data-lucide="x"></i> Decline</button>
-                            </div>
-                        </div>
-
-                        <!-- Card 3 -->
-                        <div class="event-card public-event-type" data-priority="medium">
-                            <div class="card-header">
-                                <span class="badge badge-medium">Medium Priority</span>
-                            </div>
-                            <h3 class="card-title">Bangalore Death Fest 4</h3>
-                            <div class="card-meta">
-                                <div class="meta-item"><i data-lucide="map-pin"></i> <span>Gilly's Redefined, Koramangala</span></div>
-                                <div class="meta-item"><i data-lucide="clock"></i> <span>5:00 PM - 11:30 PM</span></div>
-                                <div class="meta-item"><i data-lucide="users"></i> <span>Expected Crowd: 2,500</span></div>
-                            </div>
-                            <p class="card-desc">Koramangala Gillys area is totally packed with people and cars today.</p>
-                            <div class="card-actions">
-                                <button class="btn-card btn-accept"><i data-lucide="check"></i> Accept</button>
-                                <button class="btn-card btn-decline"><i data-lucide="x"></i> Decline</button>
-                            </div>
-                        </div>
+                    <h2 class="column-title">
+                        <i data-lucide="calendar" class="col-icon"></i>
+                        Upcoming Public Events
+                    </h2>
+                    <div class="cards-list" id="public-events-list">
+                        <div class="loading-placeholder">Loading events...</div>
                     </div>
                 </div>
 
-                <!-- Right: Reported Incidents -->
+                <!-- Right column: Incidents -->
                 <div class="events-column" id="reported-incidents-col">
-                    <h2 class="column-title"><i data-lucide="alert-triangle" class="col-icon"></i> Reported Incidents</h2>
-                    <div class="cards-list">
-                        <!-- Card 1 -->
-                        <div class="event-card report-type" data-priority="high">
-                            <div class="card-header">
-                                <span class="badge badge-high">Severity: High</span>
-                            </div>
-                            <h3 class="card-title">Vehicle Breakdown</h3>
-                            <div class="card-meta">
-                                <div class="meta-item"><i data-lucide="map-pin"></i> <span>Silk Board Junction</span></div>
-                                <div class="meta-item"><i data-lucide="clock"></i> <span>Reported: 20 minutes ago</span></div>
-                            </div>
-                            <p class="card-desc">Broken down truck blocking the left lane at Silk Board flyover.</p>
-                            <div class="card-actions">
-                                <button class="btn-card btn-accept"><i data-lucide="check"></i> Accept</button>
-                                <button class="btn-card btn-decline"><i data-lucide="x"></i> Decline</button>
-                            </div>
-                        </div>
-
-                        <!-- Card 2 -->
-                        <div class="event-card report-type" data-priority="medium">
-                            <div class="card-header">
-                                <span class="badge badge-medium">Severity: Medium</span>
-                            </div>
-                            <h3 class="card-title">Tree Fall</h3>
-                            <div class="card-meta">
-                                <div class="meta-item"><i data-lucide="map-pin"></i> <span>Indiranagar 100 Feet Road</span></div>
-                                <div class="meta-item"><i data-lucide="clock"></i> <span>Reported: 45 minutes ago</span></div>
-                            </div>
-                            <p class="card-desc">Big tree branch fell down on Indiranagar 100 feet road, blocking traffic.</p>
-                            <div class="card-actions">
-                                <button class="btn-card btn-accept"><i data-lucide="check"></i> Accept</button>
-                                <button class="btn-card btn-decline"><i data-lucide="x"></i> Decline</button>
-                            </div>
-                        </div>
-
-                        <!-- Card 3 -->
-                        <div class="event-card report-type" data-priority="high">
-                            <div class="card-header">
-                                <span class="badge badge-high">Severity: High</span>
-                            </div>
-                            <h3 class="card-title">Water Logging</h3>
-                            <div class="card-meta">
-                                <div class="meta-item"><i data-lucide="map-pin"></i> <span>Outer Ring Road</span></div>
-                                <div class="meta-item"><i data-lucide="clock"></i> <span>Reported: 1 hour ago</span></div>
-                            </div>
-                            <p class="card-desc">Bad water logging on Outer Ring Road underpass, traffic at a standstill.</p>
-                            <div class="card-actions">
-                                <button class="btn-card btn-accept"><i data-lucide="check"></i> Accept</button>
-                                <button class="btn-card btn-decline"><i data-lucide="x"></i> Decline</button>
-                            </div>
-                        </div>
+                    <h2 class="column-title">
+                        <i data-lucide="alert-triangle" class="col-icon"></i>
+                        Reported Incidents
+                    </h2>
+                    <div class="cards-list" id="reported-incidents-list">
+                        <div class="loading-placeholder">Loading incidents...</div>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
-    <!-- Add Event Modal -->
-    <div class="modal-backdrop" id="add-event-modal">
+
+    <!-- ═══════════════════ WEATHER RISK INTELLIGENCE ═══════════════════ -->
+    <section class="weather-risk-section" id="weather-risk-section">
+        <div class="container">
+            <div class="weather-section-header">
+                <div class="weather-header-left">
+                    <i data-lucide="cloud-rain" class="weather-header-icon"></i>
+                    <div>
+                        <h2>Weather Risk Intelligence</h2>
+                        <p>Active weather warnings with predicted traffic impact — Bengaluru Traffic Police</p>
+                    </div>
+                </div>
+                <div class="weather-header-right">
+                    <span class="weather-alert-count" id="weather-alert-count">— Active Alerts</span>
+                    <span class="weather-last-updated" id="weather-last-updated"></span>
+                </div>
+            </div>
+            <div class="weather-alerts-grid" id="weather-alerts-list">
+                <div class="loading-placeholder">Loading weather alerts...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ ADD PUBLIC EVENT MODAL ═══════════════════ -->
+    <div class="modal-backdrop" id="modal-add-event">
         <div class="modal-content">
-            <button class="modal-close" id="btn-close-modal">&times;</button>
-            <h2 class="modal-title">Create Traffic Event</h2>
-            
-            <form id="new-event-form" class="modal-form" onsubmit="event.preventDefault();">
+            <button class="modal-close" data-modal="modal-add-event">&times;</button>
+            <h2 class="modal-title">Add Public Event</h2>
+
+            <form id="form-add-event" class="modal-form" novalidate>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="event-title">Event Title</label>
-                        <input type="text" id="event-title" placeholder="e.g. Political Rally, Metro work..." required>
+                        <label for="ev-name">Event Name <span class="req">*</span></label>
+                        <input type="text" id="ev-name" placeholder="e.g. IPL Match, Political Rally" required>
                     </div>
                     <div class="form-group">
-                        <label for="event-type-select">Event Type</label>
-                        <select id="event-type-select">
-                            <option value="public">Planned Public Event</option>
-                            <option value="report">Unplanned Incident / Report</option>
+                        <label for="ev-type">Event Type</label>
+                        <select id="ev-type">
+                            <option value="IPL Match">IPL Match</option>
+                            <option value="Cricket Match">Cricket Match</option>
+                            <option value="Football Match">Football Match</option>
+                            <option value="Concert">Concert</option>
+                            <option value="Music Festival">Music Festival</option>
+                            <option value="Political Rally">Political Rally</option>
+                            <option value="Exhibition / Expo">Exhibition / Expo</option>
+                            <option value="Religious Procession">Religious Procession</option>
+                            <option value="Marathon / Run">Marathon / Run</option>
+                            <option value="Cultural Event">Cultural Event</option>
+                            <option value="VIP Movement">VIP Movement</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="event-location">Location / Venue</label>
-                        <select id="event-location">
-                            <option value="M. Chinnaswamy Stadium">M. Chinnaswamy Stadium</option>
-                            <option value="Palace Grounds">Palace Grounds</option>
-                            <option value="Koramangala Gilly's">Koramangala Gilly's</option>
-                            <option value="Silk Board Junction">Silk Board Junction</option>
-                            <option value="Indiranagar 100 Feet Road">Indiranagar 100 Feet Road</option>
-                            <option value="Outer Ring Road">Outer Ring Road</option>
-                            <option value="Hebbal Flyover">Hebbal Flyover</option>
-                            <option value="Majestic">Majestic</option>
-                            <option value="Whitefield ITPL">Whitefield ITPL</option>
-                        </select>
+                        <label for="ev-location">Location / Venue</label>
+                        <input type="text" id="ev-location" placeholder="e.g. M. Chinnaswamy Stadium">
                     </div>
                     <div class="form-group">
-                        <label for="event-priority">Priority / Severity</label>
-                        <select id="event-priority">
-                            <option value="high">High</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="low">Low</option>
+                        <label for="ev-zone">Zone</label>
+                        <select id="ev-zone">
+                            <option value="">— Select Zone —</option>
+                            <option>Central Zone 1</option>
+                            <option>Central Zone 2</option>
+                            <option>North Zone 1</option>
+                            <option>North Zone 2</option>
+                            <option>South Zone 1</option>
+                            <option>South Zone 2</option>
+                            <option>East Zone 1</option>
+                            <option>East Zone 2</option>
+                            <option>West Zone 1</option>
+                            <option>West Zone 2</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="event-time">Event Timing / Duration</label>
-                        <input type="text" id="event-time" placeholder="e.g. 5:00 PM - 9:00 PM or Reported 10m ago">
+                        <label for="ev-start-date">Date</label>
+                        <input type="date" id="ev-start-date">
                     </div>
                     <div class="form-group">
-                        <label for="event-crowd">Expected Crowd / Severity Info</label>
-                        <input type="text" id="event-crowd" placeholder="e.g. Crowd: 10,000 or Blocking 1 lane">
+                        <label for="ev-crowd">Expected Crowd</label>
+                        <input type="number" id="ev-crowd" placeholder="e.g. 35000" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ev-start-time">Start Time</label>
+                        <input type="time" id="ev-start-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="ev-end-time">End Time</label>
+                        <input type="time" id="ev-end-time">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ev-severity">Severity</label>
+                        <select id="ev-severity">
+                            <option value="HIGH">High</option>
+                            <option value="MEDIUM" selected>Medium</option>
+                            <option value="LOW">Low</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ev-corridor">Corridor / Road</label>
+                        <input type="text" id="ev-corridor" placeholder="e.g. Bellary Road">
                     </div>
                 </div>
 
                 <div class="form-group full-width">
-                    <label for="event-description">Description (Citizen Report Style)</label>
-                    <textarea id="event-description" rows="3" placeholder="e.g. Bad water logging at ORR underpass, slow moving traffic..."></textarea>
+                    <label for="ev-description">Description</label>
+                    <textarea id="ev-description" rows="3"
+                        placeholder="Describe expected traffic impact, access roads, crowd details..."></textarea>
                 </div>
 
+                <div id="ev-error" class="form-error" style="display:none;"></div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" id="btn-cancel-modal">Cancel</button>
-                    <button type="submit" class="btn-submit">Submit Event</button>
+                    <button type="button" class="btn-cancel" data-modal="modal-add-event">Cancel</button>
+                    <button type="submit" class="btn-submit">Save Event</button>
                 </div>
             </form>
         </div>
     </div>
-</div>
+
+    <!-- ═══════════════════ REPORT INCIDENT MODAL ═══════════════════ -->
+    <div class="modal-backdrop" id="modal-report-incident">
+        <div class="modal-content">
+            <button class="modal-close" data-modal="modal-report-incident">&times;</button>
+            <h2 class="modal-title">Report Incident</h2>
+
+            <form id="form-report-incident" class="modal-form" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inc-name">Incident Name <span class="req">*</span></label>
+                        <input type="text" id="inc-name" placeholder="e.g. Vehicle Breakdown, Tree Fall" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="inc-type">Incident Type</label>
+                        <select id="inc-type">
+                            <option value="Vehicle Breakdown">Vehicle Breakdown</option>
+                            <option value="Accident">Accident</option>
+                            <option value="Tree Fall">Tree Fall</option>
+                            <option value="Water Logging">Water Logging</option>
+                            <option value="Flooding">Flooding</option>
+                            <option value="Road Construction">Road Construction</option>
+                            <option value="Pothole">Pothole</option>
+                            <option value="Debris on Road">Debris on Road</option>
+                            <option value="Protest">Protest</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inc-location">Location</label>
+                        <input type="text" id="inc-location" placeholder="e.g. Silk Board Junction">
+                    </div>
+                    <div class="form-group">
+                        <label for="inc-severity">Severity</label>
+                        <select id="inc-severity">
+                            <option value="HIGH">High</option>
+                            <option value="MEDIUM" selected>Medium</option>
+                            <option value="LOW">Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inc-corridor">Corridor / Road</label>
+                        <input type="text" id="inc-corridor" placeholder="e.g. Hosur Road">
+                    </div>
+                    <div class="form-group">
+                        <label for="inc-zone">Zone</label>
+                        <select id="inc-zone">
+                            <option value="">— Select Zone —</option>
+                            <option>Central Zone 1</option>
+                            <option>Central Zone 2</option>
+                            <option>North Zone 1</option>
+                            <option>North Zone 2</option>
+                            <option>South Zone 1</option>
+                            <option>South Zone 2</option>
+                            <option>East Zone 1</option>
+                            <option>East Zone 2</option>
+                            <option>West Zone 1</option>
+                            <option>West Zone 2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="inc-description">Description</label>
+                    <textarea id="inc-description" rows="3"
+                        placeholder="Describe the incident — number of vehicles involved, lane blockage, any injuries..."></textarea>
+                </div>
+
+                <div id="inc-error" class="form-error" style="display:none;"></div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" data-modal="modal-report-incident">Cancel</button>
+                    <button type="submit" class="btn-submit btn-submit-incident">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div><!-- .events-page-wrapper -->
 {% endblock %}
 
 {% block scripts %}

@@ -1,0 +1,203 @@
+{% extends "citizen_base.html" %}
+
+{% block title %}Live Traffic — User Dashboard{% endblock %}
+
+{% block content %}
+<div class="citizen-page-wrapper">
+
+    <!-- ══ HERO ══════════════════════════════════════════════════════════ -->
+    <section class="citizen-hero">
+        <div class="container">
+            <div class="citizen-hero-inner">
+                <div class="citizen-hero-text">
+                    <div class="city-status-chip" id="city-status-chip">
+                        <span class="status-dot"></span>
+                        <span id="city-status-label">Loading…</span>
+                    </div>
+                    <h1>Bengaluru <span>Live</span></h1>
+                    <p>Real-time traffic conditions, event alerts, and weather disruptions for your commute.</p>
+                    <div class="citizen-hero-actions">
+                        <a href="{{ url_for('citizen_map') }}" class="btn-citizen-primary">
+                            <i data-lucide="map"></i> Plan My Route
+                        </a>
+                        <button class="btn-citizen-secondary" id="btn-open-report-modal">
+                            <i data-lucide="alert-triangle"></i> Report a Problem
+                        </button>
+                    </div>
+                </div>
+                <div class="city-pulse-strip">
+                    <div class="pulse-stat" id="pulse-incidents">
+                        <div class="pulse-stat-val" id="pulse-inc-count">—</div>
+                        <div class="pulse-stat-label">Active Incidents</div>
+                    </div>
+                    <div class="pulse-divider"></div>
+                    <div class="pulse-stat" id="pulse-events">
+                        <div class="pulse-stat-val" id="pulse-ev-count">—</div>
+                        <div class="pulse-stat-label">Upcoming Events</div>
+                    </div>
+                    <div class="pulse-divider"></div>
+                    <div class="pulse-stat" id="pulse-weather">
+                        <div class="pulse-stat-val" id="pulse-wx-count">—</div>
+                        <div class="pulse-stat-label">Weather Alerts</div>
+                    </div>
+                    <div class="pulse-divider"></div>
+                    <div class="pulse-stat">
+                        <div class="pulse-stat-val pulse-updated" id="pulse-updated">—</div>
+                        <div class="pulse-stat-label">Last Updated</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ MAIN CONTENT GRID ═════════════════════════════════════════════ -->
+    <section class="citizen-main">
+        <div class="container">
+            <div class="citizen-grid">
+
+                <!-- ── Public Events Column ─────────────────────────────── -->
+                <div class="citizen-col" id="col-events">
+                    <div class="col-header">
+                        <span class="col-header-icon col-icon-events">
+                            <i data-lucide="calendar-days"></i>
+                        </span>
+                        <div>
+                            <h2 class="col-title">Upcoming Events</h2>
+                            <p class="col-subtitle">Events affecting traffic this week</p>
+                        </div>
+                    </div>
+                    <div class="citizen-cards-list" id="events-list">
+                        <div class="citizen-loading">Loading events…</div>
+                    </div>
+                </div>
+
+                <!-- ── Incidents Column ─────────────────────────────────── -->
+                <div class="citizen-col" id="col-incidents">
+                    <div class="col-header">
+                        <span class="col-header-icon col-icon-incidents">
+                            <i data-lucide="siren"></i>
+                        </span>
+                        <div>
+                            <h2 class="col-title">Active Alerts</h2>
+                            <p class="col-subtitle">Reported road problems right now</p>
+                        </div>
+                    </div>
+                    <div class="citizen-cards-list" id="incidents-list">
+                        <div class="citizen-loading">Loading alerts…</div>
+                    </div>
+                </div>
+
+                <!-- ── Weather Column ───────────────────────────────────── -->
+                <div class="citizen-col" id="col-weather">
+                    <div class="col-header">
+                        <span class="col-header-icon col-icon-weather">
+                            <i data-lucide="cloud-rain"></i>
+                        </span>
+                        <div>
+                            <h2 class="col-title">Weather Risks</h2>
+                            <p class="col-subtitle">Weather affecting roads today</p>
+                        </div>
+                    </div>
+                    <div class="citizen-cards-list" id="weather-list">
+                        <div class="citizen-loading">Loading weather…</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ ROUTE PLANNER CTA ══════════════════════════════════════════════ -->
+    <section class="route-cta-section">
+        <div class="container">
+            <div class="route-cta-inner">
+                <div class="route-cta-text">
+                    <h2>Plan Around Disruptions</h2>
+                    <p>Our route planner factors in live incidents, public events, and weather to find the best path through the city.</p>
+                </div>
+                <a href="{{ url_for('citizen_map') }}" class="btn-citizen-primary btn-lg-cta">
+                    <i data-lucide="map"></i> Open Route Planner
+                </a>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- ══ REPORT INCIDENT MODAL ══════════════════════════════════════════════ -->
+<div class="citizen-modal-backdrop" id="modal-report">
+    <div class="citizen-modal">
+        <button class="citizen-modal-close" id="btn-close-report-modal">
+            <i data-lucide="x"></i>
+        </button>
+        <div class="citizen-modal-header">
+            <div class="citizen-modal-icon">
+                <i data-lucide="alert-triangle"></i>
+            </div>
+            <div>
+                <h2>Report a Road Problem</h2>
+                <p>Your report goes directly to the traffic management system.</p>
+            </div>
+        </div>
+
+        <form id="form-citizen-report" class="citizen-form" novalidate>
+            <div class="citizen-form-row">
+                <div class="citizen-form-group">
+                    <label for="rep-type">Problem Type <span class="req">*</span></label>
+                    <select id="rep-type">
+                        <option value="Accident">Accident</option>
+                        <option value="Vehicle Breakdown">Vehicle Breakdown</option>
+                        <option value="Water Logging">Water Logging / Flooding</option>
+                        <option value="Tree Fall">Tree Fall / Debris</option>
+                        <option value="Pothole">Pothole / Road Damage</option>
+                        <option value="Traffic Jam">Severe Traffic Jam</option>
+                        <option value="Road Construction">Road Construction Blockage</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="citizen-form-group">
+                    <label for="rep-severity">How Severe?</label>
+                    <select id="rep-severity">
+                        <option value="HIGH">Major — Road blocked / accident</option>
+                        <option value="MEDIUM" selected>Moderate — Causing delays</option>
+                        <option value="LOW">Minor — Heads-up only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="citizen-form-group">
+                <label for="rep-location">Location <span class="req">*</span></label>
+                <input type="text" id="rep-location" placeholder="e.g. Silk Board Junction, Hosur Road near KFC…" list="location-suggestions" required>
+                <datalist id="location-suggestions"></datalist>
+            </div>
+
+            <div class="citizen-form-group">
+                <label for="rep-description">What's happening?</label>
+                <textarea id="rep-description" rows="3"
+                    placeholder="Describe what you see — number of vehicles affected, lane blockage, any injuries, how long it's been happening…"></textarea>
+            </div>
+
+            <div class="rep-privacy-note">
+                <i data-lucide="info"></i>
+                Your report will be visible to Bengaluru Traffic Police for faster response.
+            </div>
+
+            <div id="rep-error" class="citizen-form-error" style="display:none;"></div>
+            <div id="rep-success" class="citizen-form-success" style="display:none;">
+                <i data-lucide="check-circle-2"></i> Report submitted. Thank you — police have been notified.
+            </div>
+
+            <div class="citizen-modal-footer">
+                <button type="button" class="btn-citizen-cancel" id="btn-cancel-report">Cancel</button>
+                <button type="submit" class="btn-citizen-submit" id="btn-submit-report">
+                    <i data-lucide="send"></i> Submit Report
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/citizen_dashboard.js') }}"></script>
+{% endblock %}
